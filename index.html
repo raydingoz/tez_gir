@@ -1,0 +1,2036 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tez Veri Girişi &amp; Analiz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- THEME: FOUC önleme (ilk boya öncesi tema uygula) -->
+  <script>
+    (function () {
+      const KEY = "tez_theme_choice_v2";
+      const choice = localStorage.getItem(KEY) || "auto";
+      const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+      const resolved = choice === "auto" ? (prefersLight ? "light" : "dark-blue") : choice;
+      document.documentElement.setAttribute("data-theme", resolved);
+    })();
+  </script>
+
+  <style>
+    /* =========================
+       Modern Theme Tokens
+       ========================= */
+    :root {
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+
+      --accent-rgb: 59 130 246;     /* blue-500 */
+      --accent2-rgb: 56 189 248;    /* sky-400 */
+      --danger-rgb: 248 113 113;    /* red-400 */
+      --success-rgb: 34 197 94;     /* green-500 */
+
+      --bg-grad-1: #0b1025;
+      --bg-grad-2: #020617;
+
+      --shell-bg: rgba(2, 6, 23, 0.72);
+      --card-bg: rgba(2, 6, 23, 0.60);
+      --card-bg-2: rgba(2, 6, 23, 0.78);
+
+      --text-1: #e5e7eb;
+      --text-2: rgba(229, 231, 235, 0.70);
+
+      --border-1: rgba(148, 163, 184, 0.24);
+      --border-2: rgba(148, 163, 184, 0.14);
+
+      --control-bg: rgba(15, 23, 42, 0.88);
+      --control-border: rgba(148, 163, 184, 0.22);
+
+      --shadow-1: 0 18px 44px rgba(0, 0, 0, 0.55);
+      --shadow-2: 0 10px 24px rgba(0, 0, 0, 0.40);
+
+      --ring: 0 0 0 3px rgb(var(--accent-rgb) / 0.22);
+      --ring-strong: 0 0 0 1px rgb(var(--accent-rgb) / 0.90), 0 0 0 10px rgb(var(--accent-rgb) / 0.18);
+    }
+
+    /* color-scheme: custom select kullandığımız için native popup derdi kalmıyor; yine de form kontrolleri için */
+    html { color-scheme: light dark; }
+    html[data-theme="light"] { color-scheme: light; }
+    html:not([data-theme="light"]) { color-scheme: dark; }
+
+    /* =========================
+       Themes (known palettes)
+       ========================= */
+    html[data-theme="dark-blue"] {
+      --accent-rgb: 59 130 246;
+      --accent2-rgb: 56 189 248;
+      --bg-grad-1: #0b1025;
+      --bg-grad-2: #020617;
+    }
+    html[data-theme="dark-slate"] {
+      --accent-rgb: 148 163 184;   /* slate-400 */
+      --accent2-rgb: 203 213 225;  /* slate-300 */
+      --bg-grad-1: #0a1220;
+      --bg-grad-2: #020617;
+      --border-1: rgba(148, 163, 184, 0.20);
+      --border-2: rgba(148, 163, 184, 0.12);
+    }
+    html[data-theme="dark-crimson"] {
+      --accent-rgb: 244 63 94;     /* rose-500 */
+      --accent2-rgb: 251 113 133;  /* rose-400 */
+      --bg-grad-1: #18060c;
+      --bg-grad-2: #020612;
+      --border-1: rgba(251, 113, 133, 0.20);
+      --border-2: rgba(251, 113, 133, 0.12);
+    }
+    html[data-theme="dark-orange"] {
+      --accent-rgb: 249 115 22;    /* orange-500 */
+      --accent2-rgb: 251 146 60;   /* orange-400 */
+      --bg-grad-1: #1a0d05;
+      --bg-grad-2: #020617;
+      --border-1: rgba(251, 146, 60, 0.20);
+      --border-2: rgba(251, 146, 60, 0.12);
+    }
+    html[data-theme="dark-emerald"] {
+      --accent-rgb: 16 185 129;    /* emerald-500 */
+      --accent2-rgb: 34 197 94;    /* green-500 */
+      --bg-grad-1: #04160f;
+      --bg-grad-2: #020617;
+      --border-1: rgba(34, 197, 94, 0.20);
+      --border-2: rgba(34, 197, 94, 0.12);
+    }
+    html[data-theme="dark-violet"] {
+      --accent-rgb: 168 85 247;    /* violet-500 */
+      --accent2-rgb: 99 102 241;   /* indigo-500 */
+      --bg-grad-1: #120722;
+      --bg-grad-2: #020617;
+      --border-1: rgba(168, 85, 247, 0.20);
+      --border-2: rgba(168, 85, 247, 0.12);
+    }
+
+    html[data-theme="light"] {
+      --accent-rgb: 37 99 235;     /* blue-600 */
+      --accent2-rgb: 14 165 233;   /* sky-500 */
+      --danger-rgb: 239 68 68;     /* red-500 */
+      --success-rgb: 16 185 129;   /* emerald-500 */
+
+      --bg-grad-1: #eef2ff;        /* indigo-50 */
+      --bg-grad-2: #f8fafc;        /* slate-50 */
+
+      --shell-bg: rgba(255, 255, 255, 0.72);
+      --card-bg: rgba(255, 255, 255, 0.82);
+      --card-bg-2: rgba(248, 250, 252, 0.92);
+
+      --text-1: #0f172a;           /* slate-900 */
+      --text-2: rgba(15, 23, 42, 0.68);
+
+      --border-1: rgba(15, 23, 42, 0.14);
+      --border-2: rgba(15, 23, 42, 0.10);
+
+      --control-bg: rgba(255, 255, 255, 0.96);
+      --control-border: rgba(100, 116, 139, 0.35);
+
+      --shadow-1: 0 18px 44px rgba(15, 23, 42, 0.14);
+      --shadow-2: 0 10px 24px rgba(15, 23, 42, 0.10);
+
+      --ring: 0 0 0 3px rgb(var(--accent-rgb) / 0.22);
+      --ring-strong: 0 0 0 1px rgb(var(--accent-rgb) / 0.70), 0 0 0 10px rgb(var(--accent-rgb) / 0.16);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      color: var(--text-1);
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      padding: 22px;
+
+      background:
+        radial-gradient(1100px circle at 12% -10%, rgb(var(--accent-rgb) / 0.22), transparent 60%),
+        radial-gradient(900px circle at 88% 120%, rgb(var(--accent2-rgb) / 0.16), transparent 55%),
+        linear-gradient(180deg, var(--bg-grad-1), var(--bg-grad-2));
+    }
+
+    .app-shell {
+      max-width: 1320px;
+      width: 100%;
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-1);
+      background:
+        radial-gradient(900px circle at 0% 0%, rgb(var(--accent-rgb) / 0.10), transparent 55%),
+        radial-gradient(900px circle at 100% 100%, rgb(var(--accent2-rgb) / 0.08), transparent 55%),
+        linear-gradient(180deg, rgb(255 255 255 / 0.03), rgb(255 255 255 / 0.00));
+      box-shadow: var(--shadow-1);
+      padding: 18px 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .title-block h1 {
+      font-size: 18px;
+      letter-spacing: 0.02em;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      line-height: 1.25;
+    }
+
+    .title-pill {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgb(var(--accent-rgb) / 0.35);
+      background: linear-gradient(135deg, rgb(var(--accent-rgb) / 0.16), rgb(var(--accent2-rgb) / 0.06));
+      color: rgb(var(--accent-rgb) / 0.95);
+      box-shadow: 0 0 0 1px rgb(255 255 255 / 0.04) inset;
+    }
+
+    .title-sub {
+      margin: 6px 0 0;
+      font-size: 12px;
+      color: var(--text-2);
+    }
+
+    .header-meta {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      font-size: 11px;
+      color: var(--text-2);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-1);
+      background: rgb(255 255 255 / 0.04);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: var(--shadow-2);
+      position: relative;
+    }
+
+    .chip strong {
+      color: var(--text-1);
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 1024px) {
+      body { padding: 12px; }
+      .app-shell { padding: 14px; }
+      main { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    .card {
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-1);
+      background: linear-gradient(180deg, var(--card-bg), var(--card-bg-2));
+      box-shadow: var(--shadow-2);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(700px circle at 10% 0%, rgb(var(--accent-rgb) / 0.14), transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-header h2 {
+      font-size: 12px;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-2);
+    }
+
+    .card-header span {
+      font-size: 11px;
+      color: var(--text-2);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border-1);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-1);
+      background: rgb(255 255 255 / 0.04);
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgb(var(--success-rgb) / 1);
+      box-shadow: 0 0 0 5px rgb(var(--success-rgb) / 0.16);
+    }
+
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .button-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    button {
+      border-radius: 999px;
+      border: 1px solid transparent;
+      padding: 8px 14px;
+      font-size: 11px;
+      font-weight: 650;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, rgb(var(--accent-rgb) / 1), rgb(var(--accent2-rgb) / 1));
+      color: white;
+      box-shadow: 0 10px 22px rgb(var(--accent-rgb) / 0.25);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease, background 0.12s ease;
+      user-select: none;
+    }
+
+    button.secondary {
+      background: transparent;
+      border-color: var(--border-1);
+      color: var(--text-1);
+      box-shadow: none;
+    }
+
+    button.danger {
+      background: transparent;
+      border-color: rgb(var(--danger-rgb) / 0.70);
+      color: rgb(var(--danger-rgb) / 0.90);
+      box-shadow: none;
+    }
+
+    button.ghost {
+      background: rgb(255 255 255 / 0.04);
+      border-color: var(--border-2);
+      color: var(--text-1);
+      box-shadow: none;
+      padding-inline: 10px;
+      font-size: 10px;
+    }
+
+    button:disabled { opacity: 0.6; cursor: default; box-shadow: none; }
+
+    button:not(:disabled):hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgb(var(--accent-rgb) / 0.30);
+      filter: brightness(1.02);
+    }
+
+    button.secondary:not(:disabled):hover,
+    button.danger:not(:disabled):hover,
+    button.ghost:not(:disabled):hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+      background: rgb(255 255 255 / 0.06);
+    }
+
+    .button-icon { width: 12px; height: 12px; stroke: currentColor; stroke-width: 2; fill: none; }
+
+    .search-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .search-row input[type="text"] {
+      flex: 1;
+      padding: 9px 12px 9px 30px;
+      border-radius: 999px;
+      border: 1px solid var(--control-border);
+      background: var(--control-bg);
+      color: var(--text-1);
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .search-row input[type="text"]:focus {
+      border-color: rgb(var(--accent-rgb) / 0.80);
+      box-shadow: var(--ring-strong);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 11px;
+      width: 12px;
+      height: 12px;
+      opacity: 0.7;
+      fill: none;
+      stroke: var(--text-2);
+      stroke-width: 2;
+      pointer-events: none;
+    }
+
+    .section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-2);
+      margin-top: 8px;
+      margin-bottom: 4px;
+    }
+
+    .hint { font-size: 10px; color: var(--text-2); }
+
+    .preview-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 10px;
+    }
+    @media (max-width: 840px) { .preview-form-grid { grid-template-columns: minmax(0, 1fr); } }
+
+    .preview-field { display: flex; flex-direction: column; gap: 4px; }
+
+    label {
+      font-size: 11px;
+      color: var(--text-2);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      border-radius: 999px;
+      border: 1px solid var(--control-border);
+      padding: 8px 10px;
+      font-size: 12px;
+      background: var(--control-bg);
+      color: var(--text-1);
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      border-color: rgb(var(--accent-rgb) / 0.80);
+      box-shadow: var(--ring-strong);
+    }
+
+    .divider { margin: 8px 0; border-top: 1px solid var(--border-2); }
+
+    .progress-box {
+      margin-top: 6px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgb(var(--accent-rgb) / 0.26);
+      background: radial-gradient(700px circle at 0% 0%, rgb(var(--accent-rgb) / 0.12), transparent 55%),
+                  rgb(255 255 255 / 0.03);
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      margin-bottom: 8px;
+      color: rgb(var(--accent-rgb) / 0.92);
+    }
+
+    .progress-bar-outer {
+      position: relative;
+      width: 100%;
+      height: 9px;
+      border-radius: 999px;
+      background: rgb(0 0 0 / 0.10);
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.05);
+    }
+
+    .progress-bar-inner {
+      position: absolute;
+      inset: 0;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgb(var(--success-rgb) / 1), rgb(var(--accent2-rgb) / 1));
+      box-shadow: 0 0 14px rgb(var(--success-rgb) / 0.35);
+      transition: width 0.25s ease-out;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 960px) { .analysis-grid { grid-template-columns: minmax(0, 1fr); } }
+
+    .analysis-card-inner {
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-1);
+      background: rgb(255 255 255 / 0.03);
+      padding: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .analysis-card-inner h3 {
+      margin: 0 0 6px;
+      font-size: 12px;
+      color: var(--text-1);
+      letter-spacing: 0.01em;
+    }
+
+    .analysis-card-inner table { font-size: 10px; width: 100%; border-collapse: collapse; }
+    .analysis-card-inner th, .analysis-card-inner td {
+      padding: 5px 6px;
+      border-bottom: 1px solid var(--border-2);
+      white-space: nowrap;
+    }
+    .analysis-card-inner th { color: var(--text-2); font-weight: 650; }
+
+    .badge-soft {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgb(var(--accent-rgb) / 0.22);
+      font-size: 10px;
+      color: rgb(var(--accent-rgb) / 0.92);
+      background: rgb(var(--accent-rgb) / 0.08);
+    }
+    .badge-soft-dot { width: 7px; height: 7px; border-radius: 999px; background: rgb(var(--success-rgb) / 1); }
+
+    .table-wrapper {
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-1);
+      background: rgb(255 255 255 / 0.03);
+      max-height: 270px;
+      overflow: auto;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: linear-gradient(180deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.03));
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    th, td {
+      padding: 7px 9px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-2);
+      white-space: nowrap;
+    }
+
+    th { font-weight: 650; color: var(--text-2); }
+
+    tbody tr:nth-child(even) { background: rgb(255 255 255 / 0.02); }
+    tbody tr:hover { background: rgb(var(--accent-rgb) / 0.10); }
+
+    .empty-state { font-size: 11px; color: var(--text-2); text-align: center; padding: 12px; }
+
+    /* =========================
+       Custom Select (solves black options everywhere)
+       ========================= */
+    .cselect {
+      position: relative;
+      width: 100%;
+      user-select: none;
+    }
+
+    .cselect-btn {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid var(--control-border);
+      background: var(--control-bg);
+      color: var(--text-1);
+      padding: 8px 10px;
+      font-size: 12px;
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease, background 0.15s ease;
+    }
+
+    .cselect-btn:focus {
+      border-color: rgb(var(--accent-rgb) / 0.80);
+      box-shadow: var(--ring-strong);
+    }
+
+    .cselect-value {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .cselect-caret {
+      opacity: 0.85;
+      font-size: 12px;
+      flex: 0 0 auto;
+    }
+
+    .cselect-menu {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 8px);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-1);
+      background: linear-gradient(180deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.03));
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: var(--shadow-1);
+      padding: 8px;
+      display: none;
+      max-height: 260px;
+      overflow: auto;
+      z-index: 50;
+    }
+
+    .cselect.open .cselect-menu { display: block; }
+
+    .cselect-option {
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-1);
+      padding: 9px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
+    }
+    .cselect-option:hover { background: rgb(var(--accent-rgb) / 0.12); transform: translateY(-1px); }
+    .cselect-option.selected {
+      background: rgb(var(--accent-rgb) / 0.16);
+      border-color: rgb(var(--accent-rgb) / 0.22);
+    }
+
+    .cselect--sm .cselect-btn { padding: 6px 10px; font-size: 11px; }
+
+    /* Status highlighting for both inputs and custom selects */
+    .field-control.input-status-empty {
+      border-color: rgb(var(--danger-rgb) / 0.65) !important;
+      box-shadow: 0 0 0 2px rgb(var(--danger-rgb) / 0.14) !important;
+    }
+    .field-control.input-status-filled {
+      border-color: rgb(var(--success-rgb) / 0.65) !important;
+      box-shadow: 0 0 0 2px rgb(var(--success-rgb) / 0.14) !important;
+    }
+    .cselect.field-control.input-status-empty .cselect-btn {
+      border-color: rgb(var(--danger-rgb) / 0.65) !important;
+      box-shadow: 0 0 0 2px rgb(var(--danger-rgb) / 0.14) !important;
+    }
+    .cselect.field-control.input-status-filled .cselect-btn {
+      border-color: rgb(var(--success-rgb) / 0.65) !important;
+      box-shadow: 0 0 0 2px rgb(var(--success-rgb) / 0.14) !important;
+    }
+    .app-shell { overflow: visible; }
+
+header,
+.header-meta {
+  position: relative;
+  z-index: 2000;
+  overflow: visible;
+}
+
+.chip {
+  position: relative;
+  z-index: 2000;
+  overflow: visible;
+}
+
+/* Menü en üstte */
+.cselect-menu {
+  z-index: 9999 !important;
+}
+#dynamicFieldsContainer .cselect-btn{
+  padding: 7px 10px;
+  font-size: 11px;
+  gap: 8px;
+}
+
+#dynamicFieldsContainer .cselect-value{
+  line-height: 1.1;
+}
+
+#dynamicFieldsContainer .cselect-caret{
+  font-size: 11px;
+}
+
+#dynamicFieldsContainer .cselect-menu{
+  padding: 6px;
+  max-height: 210px;
+}
+
+#dynamicFieldsContainer .cselect-option{
+  padding: 7px 9px;
+  font-size: 11px;
+  border-radius: 10px;
+}
+:root{
+  --menu-bg: rgba(2, 6, 23, 0.97);
+  --menu-border: rgba(148, 163, 184, 0.28);
+}
+
+html[data-theme="light"]{
+  --menu-bg: rgba(255, 255, 255, 0.98);
+  --menu-border: rgba(15, 23, 42, 0.18);
+}
+
+.cselect-menu{
+  background: var(--menu-bg) !important;
+  border-color: var(--menu-border) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Opsiyon satırları daha net */
+.cselect-option{
+  background: transparent !important;
+  color: var(--text-1) !important;
+}
+
+.cselect-option:hover{
+  background: rgb(var(--accent-rgb) / 0.18) !important;
+}
+
+.cselect-option.selected{
+  background: rgb(var(--accent-rgb) / 0.24) !important;
+  border-color: rgb(var(--accent-rgb) / 0.28) !important;
+}
+  </style>
+</head>
+
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="title-block">
+        <h1>
+          <span class="title-pill" id="projectLabel">TBI DAI Çalışması</span>
+          Tez Veri Girişi &amp; Analiz
+        </h1>
+        <p class="title-sub">
+          Form config ile yönetilen, CSV uyumlu veri girişi ve temel özet istatistikler.
+        </p>
+      </div>
+
+      <div class="header-meta">
+        <!-- THEME (custom select) -->
+        <div class="chip" style="gap:10px;">
+          <strong>Tema</strong>
+          <div class="cselect cselect--sm" id="themeSelect" data-placeholder="Otomatik">
+            <input type="hidden" id="themeChoice" value="auto" />
+            <button type="button" class="cselect-btn" aria-haspopup="listbox" aria-expanded="false">
+              <span class="cselect-value">Otomatik</span>
+              <span class="cselect-caret">▾</span>
+            </button>
+            <div class="cselect-menu" role="listbox">
+              <button type="button" class="cselect-option" data-value="auto">Otomatik</button>
+              <button type="button" class="cselect-option" data-value="light">Gündüz (Açık)</button>
+              <button type="button" class="cselect-option" data-value="dark-blue">Gece (Mavi)</button>
+              <button type="button" class="cselect-option" data-value="dark-slate">Gece (Gri)</button>
+              <button type="button" class="cselect-option" data-value="dark-crimson">Gece (Kırmızı)</button>
+              <button type="button" class="cselect-option" data-value="dark-orange">Gece (Turuncu)</button>
+              <button type="button" class="cselect-option" data-value="dark-emerald">Gece (Yeşil)</button>
+              <button type="button" class="cselect-option" data-value="dark-violet">Gece (Mor)</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="chip">
+          <strong>Form:</strong>&nbsp;<span id="chipProjectName">TBI DAI Çalışması</span>
+        </div>
+        <div class="chip">
+          <strong>Hedef:</strong>&nbsp;<span id="headerTarget">172</span> hasta
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- SOL: ARAMA + FORM -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2>Hasta Kodu &amp; Kayıt</h2>
+            <span>ID bazlı kayıt ekleme / güncelleme.</span>
+          </div>
+          <div class="badge">
+            <span class="badge-dot"></span>
+            FORM
+          </div>
+        </div>
+
+        <div style="position:relative;z-index:1;display:flex;flex-direction:column;gap:10px;margin-top:4px;">
+          <div class="search-row">
+            <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="11" cy="11" r="6"></circle>
+              <line x1="16" y1="16" x2="21" y2="21"></line>
+            </svg>
+            <input id="searchId" type="text" placeholder="Hasta ID (örn. TBI-001, PACS ID, protokol no)" />
+            <button type="button" onclick="handleSearch()">
+              <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M21 21l-4.35-4.35"></path>
+                <circle cx="11" cy="11" r="6"></circle>
+              </svg>
+              Ara / Yükle
+            </button>
+            <button type="button" class="secondary" onclick="startNew()">
+              <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 5v14M5 12h14"></path>
+              </svg>
+              Yeni Kayıt
+            </button>
+          </div>
+
+          <div class="progress-box">
+            <div class="progress-top">
+              <span id="progressText">0 / 172 hasta</span>
+              <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar-outer">
+              <div class="progress-bar-inner" id="progressBar"></div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <form id="dataForm" onsubmit="event.preventDefault(); saveRecord();">
+            <div class="section-label">Kayıt ID</div>
+            <div class="preview-form-grid" style="margin-bottom:8px;">
+              <div class="preview-field">
+                <label>
+                  <span>Hasta ID / Kayıt ID</span>
+                  <input class="field-control" data-field-type="text" type="text" id="field-_id" placeholder="örn. TBI-001" />
+                </label>
+                <span class="hint">
+                  Bu ID'ye göre kayıt eklenir/güncellenir. Aynı ID ile tekrar kaydedersen üzerine yazar.
+                </span>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div id="dynamicFieldsContainer"></div>
+
+            <div class="button-row" style="margin-top:12px;justify-content:space-between;">
+              <div class="button-row" style="gap:10px;">
+                <button type="submit">
+                  <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  Kaydet / Güncelle
+                </button>
+                <button type="button" class="secondary" onclick="clearForm()">
+                  <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 4v6h6M20 20v-6h-6M5 19A8 8 0 0 1 19 5"></path>
+                  </svg>
+                  Formu Temizle
+                </button>
+                <button type="button" class="danger" onclick="deleteRecord()">
+                  <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3 6h18M9 6V4h6v2M10 11v6M14 11v6M5 6l1 14h12l1-14"></path>
+                  </svg>
+                  Kaydı Sil
+                </button>
+              </div>
+              <button type="button" class="ghost" onclick="copyId()">
+                <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                  <rect x="3" y="3" width="13" height="13" rx="2"></rect>
+                </svg>
+                ID'yi Kopyala
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- SAĞ: ANALİZ + TABLO + CSV + CONFIG -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2>Veri Özeti &amp; Analiz</h2>
+            <span>Temel istatistikler ve satır bazlı özet.</span>
+          </div>
+          <div class="badge">
+            <span class="badge-dot"></span>
+            ANALİZ
+          </div>
+        </div>
+
+        <div style="position:relative;z-index:1;display:flex;flex-direction:column;gap:10px;margin-top:4px;">
+          <!-- Config yönetimi -->
+          <div class="row" style="justify-content:space-between;align-items:center;">
+            <div class="section-label" style="margin:0;">Aktif Config</div>
+            <div class="button-row">
+              <button type="button" class="ghost" onclick="triggerConfigImport()">Config JSON Yükle</button>
+              <button type="button" class="ghost" onclick="resetConfigToDefault()">TBI Varsayılan Config</button>
+              <input type="file" id="configJsonInput" accept=".json,application/json" style="display:none" onchange="handleConfigJsonChange(event)" />
+            </div>
+          </div>
+
+          <div class="row" style="justify-content:space-between;align-items:center;">
+            <span class="hint">
+              Config formatı, <strong>tez_form_builder.html</strong> sayfasından aldığın JSON ile birebir uyumlu.
+            </span>
+            <div class="button-row">
+              <button type="button" class="secondary" onclick="exportCSV()">
+                <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3v12M7 10l5 5 5-5"></path>
+                  <rect x="4" y="17" width="16" height="3" rx="1"></rect>
+                </svg>
+                CSV Dışa Aktar
+              </button>
+              <button type="button" class="secondary" onclick="triggerCSVImport()">
+                <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 4h16M4 10h10M4 16h8"></path>
+                </svg>
+                CSV Yükle
+              </button>
+              <input type="file" id="csvFileInput" accept=".csv,text/csv" style="display:none" onchange="handleCSVFileChange(event)" />
+            </div>
+          </div>
+
+          <div class="analysis-grid">
+            <div class="analysis-card-inner">
+              <h3>Sayısal Alanlar – Özet</h3>
+              <div id="analysisNumeric"></div>
+            </div>
+            <div class="analysis-card-inner">
+              <h3>Kategorik Alanlar – Dağılım</h3>
+              <div id="analysisCategorical"></div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row" style="justify-content:space-between;align-items:center;">
+            <div class="section-label" style="margin:0;">Kayıt Tablosu</div>
+            <span class="badge-soft">
+              <span class="badge-soft-dot"></span>
+              AI-ready CSV
+            </span>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead id="dataTableHead"></thead>
+              <tbody id="dataTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    /* =========================
+       Custom Select (global)
+       ========================= */
+    const CSELECT_REGISTRY = new Set();
+
+    function closeCSelect(root) {
+      if (!root) return;
+      root.classList.remove("open");
+      const btn = root.querySelector(".cselect-btn");
+      if (btn) btn.setAttribute("aria-expanded", "false");
+    }
+
+    function closeAllCSelects(exceptEl = null) {
+      CSELECT_REGISTRY.forEach(el => {
+        if (exceptEl && el === exceptEl) return;
+        closeCSelect(el);
+      });
+    }
+
+    function setCSelectValue(root, value, label = null, silent = false) {
+      const hidden = root.querySelector('input[type="hidden"]');
+      const placeholder = root.dataset.placeholder || "Seçiniz";
+      const valueSpan = root.querySelector(".cselect-value");
+      const options = Array.from(root.querySelectorAll(".cselect-option"));
+
+      const v = (value === null || value === undefined) ? "" : String(value);
+      if (hidden) hidden.value = v;
+
+      let display = placeholder;
+      options.forEach(opt => {
+        const isSelected = String(opt.dataset.value || "") === v;
+        opt.classList.toggle("selected", isSelected);
+        if (!label && isSelected) display = opt.textContent.trim();
+      });
+
+      if (label) display = label;
+      if (valueSpan) valueSpan.textContent = display;
+
+      root.classList.toggle("has-value", !!v);
+
+      if (!silent) {
+        root.dispatchEvent(new CustomEvent("cselect:change", { bubbles: true, detail: { value: v } }));
+      }
+    }
+
+    function initCSelect(root) {
+      if (!root || root.dataset.init === "1") return;
+      root.dataset.init = "1";
+      CSELECT_REGISTRY.add(root);
+
+      const btn = root.querySelector(".cselect-btn");
+      const menu = root.querySelector(".cselect-menu");
+      const hidden = root.querySelector('input[type="hidden"]');
+      const placeholder = root.dataset.placeholder || "Seçiniz";
+
+      if (!btn || !menu || !hidden) return;
+
+      // initial
+      const current = hidden.value || "";
+      if (!current) {
+        const emptyLabel = placeholder;
+        setCSelectValue(root, "", emptyLabel, true);
+      } else {
+        setCSelectValue(root, current, null, true);
+      }
+
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const isOpen = root.classList.contains("open");
+        if (isOpen) closeCSelect(root);
+        else {
+          closeAllCSelects(root);
+          root.classList.add("open");
+          btn.setAttribute("aria-expanded", "true");
+        }
+      });
+
+      menu.addEventListener("click", (e) => {
+        const opt = e.target.closest(".cselect-option");
+        if (!opt) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const val = String(opt.dataset.value || "");
+        setCSelectValue(root, val, opt.textContent.trim(), true);
+        closeCSelect(root);
+        root.dispatchEvent(new CustomEvent("cselect:change", { bubbles: true, detail: { value: val } }));
+      });
+    }
+
+    document.addEventListener("click", (e) => {
+      // dış tık -> açık olanları kapat
+      CSELECT_REGISTRY.forEach(el => {
+        if (el.classList.contains("open") && !el.contains(e.target)) closeCSelect(el);
+      });
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeAllCSelects();
+    });
+
+    /* =========================
+       Theme
+       ========================= */
+    const THEME_STORAGE_KEY = "tez_theme_choice_v2";
+
+    function getThemeChoice() {
+      try { return localStorage.getItem(THEME_STORAGE_KEY) || "auto"; }
+      catch { return "auto"; }
+    }
+
+    function resolveTheme(choice) {
+      if (choice !== "auto") return choice;
+      const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+      return prefersLight ? "light" : "dark-blue";
+    }
+
+    function applyThemeChoice(choice, persist = false) {
+      const resolved = resolveTheme(choice);
+      document.documentElement.setAttribute("data-theme", resolved);
+
+      if (persist) {
+        try { localStorage.setItem(THEME_STORAGE_KEY, choice); } catch {}
+      }
+
+      // UI: theme custom select hidden value + label sync
+      const themeRoot = document.getElementById("themeSelect");
+      const themeHidden = document.getElementById("themeChoice");
+      if (themeHidden) themeHidden.value = choice;
+
+      if (themeRoot) {
+        // label: seçilen option text'ine göre set
+        const opt = themeRoot.querySelector(`.cselect-option[data-value="${CSS.escape(choice)}"]`);
+        const label = opt ? opt.textContent.trim() : "Otomatik";
+        setCSelectValue(themeRoot, choice, label, true);
+      }
+    }
+
+    function initThemeUI() {
+      const themeRoot = document.getElementById("themeSelect");
+      if (!themeRoot) return;
+
+      initCSelect(themeRoot);
+
+      const choice = getThemeChoice();
+      applyThemeChoice(choice, false);
+
+      themeRoot.addEventListener("cselect:change", (e) => {
+        const val = (e.detail && typeof e.detail.value === "string") ? e.detail.value : "auto";
+        applyThemeChoice(val || "auto", true);
+      });
+
+      const mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: light)") : null;
+      if (!mq) return;
+
+      const onChange = () => {
+        if (getThemeChoice() === "auto") applyThemeChoice("auto", false);
+      };
+
+      if (mq.addEventListener) mq.addEventListener("change", onChange);
+      else if (mq.addListener) mq.addListener(onChange);
+    }
+
+    /* =========================
+       Config + Data
+       ========================= */
+    const CONFIG_STORAGE_KEY = "tez_active_form_config_v2";
+
+    const DEFAULT_CONFIG = {
+      projectName: "TBI DAI Çalışması",
+      storageKey: "tbi_dai_data_v2",
+      targetCount: 172,
+      fields: [
+        { id: "age", label: "Yaş (yıl)", csvLabel: "Yas", type: "number", group: "Demografi", required: false, hint: "Tam yıl cinsinden, örn. 42." },
+        {
+          id: "sex", label: "Cinsiyet (kodlu)", csvLabel: "CinsiyetKod", type: "select", group: "Demografi", required: false,
+          hint: "1: Erkek, 2: Kadın, 0: Bilinmiyor / Diğer.",
+          options: [{ value: "1", label: "1 - Erkek" }, { value: "2", label: "2 - Kadın" }, { value: "0", label: "0 - Bilinmiyor / Diğer" }]
+        },
+        {
+          id: "gos_6m", label: "GOS 6. Ay", csvLabel: "GOS_6Ay", type: "select", group: "Outcome", required: false, hint: "1: ölüm, 5: iyi iyileşme.",
+          options: [{ value: "1", label: "1 - Ölüm" }, { value: "2", label: "2 - Vejetatif" }, { value: "3", label: "3 - Ağır disabilite" }, { value: "4", label: "4 - Orta disabilite" }, { value: "5", label: "5 - Tam / iyi iyileşme" }]
+        },
+        {
+          id: "gose_6m", label: "GOSE 6. Ay", csvLabel: "GOSE_6Ay", type: "select", group: "Outcome", required: false, hint: "1–8; modellemede ikili/çoklu kategorilere ayrılabilir.",
+          options: [
+            { value: "1", label: "1 - Ölüm" }, { value: "2", label: "2 - Vejetatif" }, { value: "3", label: "3 - Ağır disabilite (ev dışı bağımlı)" },
+            { value: "4", label: "4 - Ağır disabilite (ev içi bağımlı)" }, { value: "5", label: "5 - Orta disabilite (ev dışı bağımlı)" },
+            { value: "6", label: "6 - Orta disabilite (ev dışı bağımsız)" }, { value: "7", label: "7 - Hafif disabilite" }, { value: "8", label: "8 - İyi iyileşme" }
+          ]
+        },
+        { id: "gcs", label: "GKS (ilk / en kötü)", csvLabel: "GKS", type: "number", group: "Klinik", required: false, hint: "3–15 arası toplam skor." },
+        {
+          id: "pupil", label: "Pupilla Reaktivitesi", csvLabel: "PupilKod", type: "select", group: "Klinik", required: false, hint: "IMPACT kodlamasına benzer.",
+          options: [{ value: "0", label: "0 - Her iki pupil reaktif" }, { value: "1", label: "1 - Tek pupil fiks/dilat" }, { value: "2", label: "2 - Her iki pupil fiks/dilat" }, { value: "9", label: "9 - Bilinmiyor" }]
+        },
+        { id: "intub", label: "Entübe (ED / prehospital)", csvLabel: "EntubeKod", type: "select", group: "Klinik", required: false, options: [{ value: "0", label: "0 - Entübe değil" }, { value: "1", label: "1 - Entübe" }, { value: "9", label: "9 - Bilinmiyor" }] },
+        { id: "hypot", label: "ED Hipotansiyon", csvLabel: "ED_HipotansiyonKod", type: "select", group: "Klinik", required: false, hint: "Prehospital/ED SBP < 90 mmHg epizodu.", options: [{ value: "0", label: "0 - Epizod yok" }, { value: "1", label: "1 - En az bir epizod" }, { value: "9", label: "9 - Bilinmiyor" }] },
+        { id: "hypox", label: "ED Hipoksi", csvLabel: "ED_HipoksiKod", type: "select", group: "Klinik", required: false, hint: "Prehospital/ED SpO₂ < 90 epizodu.", options: [{ value: "0", label: "0 - Epizod yok" }, { value: "1", label: "1 - En az bir epizod" }, { value: "9", label: "9 - Bilinmiyor" }] },
+        { id: "mech", label: "Travma Mekanizması", csvLabel: "TravmaMekanizmaKod", type: "select", group: "Klinik", required: false, options: [{ value: "1", label: "1 - AİTK / araç içi" }, { value: "2", label: "2 - ADTK / yaya, motosiklet" }, { value: "3", label: "3 - Yüksekten düşme" }, { value: "4", label: "4 - Diğer / bilinmiyor" }] },
+
+        { id: "dai_swi", label: "SWI DAI Skoru", csvLabel: "DAI_SWI_Skor", type: "select", group: "Görüntüleme", required: false, hint: "Görüntü işleme çıktısı ile kıyaslanacak skor.", options: [{ value: "0", label: "0 - Lezyon yok" }, { value: "1", label: "1 - Hafif" }, { value: "2", label: "2 - Orta" }, { value: "3", label: "3 - Ağır" }] },
+        { id: "mls", label: "Midline Shift (mm)", csvLabel: "MidlineShift_mm", type: "number", group: "Görüntüleme", required: false, hint: "Başvuru BT'de maksimum orta hat kayması." },
+        { id: "bcist", label: "Basal Cistern Durumu", csvLabel: "BasalCisternKod", type: "select", group: "Görüntüleme", required: false, options: [{ value: "0", label: "0 - Açık" }, { value: "1", label: "1 - Komprese" }, { value: "2", label: "2 - Obliter" }, { value: "9", label: "9 - Değerlendirilemedi" }] },
+        { id: "edh", label: "EDH", csvLabel: "EDH_Kod", type: "select", group: "Görüntüleme", required: false, options: [{ value: "0", label: "0 - Yok" }, { value: "1", label: "1 - Var" }, { value: "9", label: "9 - Bilinmiyor" }] },
+        { id: "sdh", label: "SDH", csvLabel: "SDH_Kod", type: "select", group: "Görüntüleme", required: false, options: [{ value: "0", label: "0 - Yok" }, { value: "1", label: "1 - Var" }, { value: "9", label: "9 - Bilinmiyor" }] },
+        { id: "sah", label: "travmatik SAH", csvLabel: "SAH_Kod", type: "select", group: "Görüntüleme", required: false, options: [{ value: "0", label: "0 - Yok" }, { value: "1", label: "1 - Var" }, { value: "9", label: "9 - Bilinmiyor" }] },
+        { id: "cont", label: "Kontüzyon / İKH", csvLabel: "KontuzyonKod", type: "select", group: "Görüntüleme", required: false, options: [{ value: "0", label: "0 - Yok" }, { value: "1", label: "1 - Var" }, { value: "9", label: "9 - Bilinmiyor" }] },
+
+        { id: "na", label: "Sodyum (mmol/L)", csvLabel: "Na_mmolL", type: "number", group: "Lab", required: false, hint: "Başvuruya en yakın Na." },
+        { id: "glu", label: "Glukoz (mg/dL)", csvLabel: "Glu_mgdl", type: "number", group: "Lab", required: false, hint: "Başvuru glukozu; gerekirse log-transform." },
+        { id: "lac", label: "Laktat (mmol/L)", csvLabel: "Laktat_mmolL", type: "number", group: "Lab", required: false, hint: "Başvuruya en yakın laktat." },
+        { id: "hb", label: "Hemoglobin (g/dL)", csvLabel: "Hb_gdl", type: "number", group: "Lab", required: false },
+        { id: "plt", label: "Trombosit (x10³/µL)", csvLabel: "Trombosit_x10e3", type: "number", group: "Lab", required: false, hint: "210 → 210.000/µL." },
+        { id: "inr", label: "INR", csvLabel: "INR", type: "number", group: "Lab", required: false },
+        { id: "cr", label: "Kreatinin (mg/dL)", csvLabel: "Kreatinin_mgdl", type: "number", group: "Lab", required: false }
+      ]
+    };
+
+    let CONFIG = null;
+    let data = [];
+
+    function cloneConfig(cfg) { return JSON.parse(JSON.stringify(cfg)); }
+
+    function loadConfigFromStorage() {
+      try {
+        const raw = localStorage.getItem(CONFIG_STORAGE_KEY);
+        if (!raw) { CONFIG = cloneConfig(DEFAULT_CONFIG); return; }
+        const parsed = JSON.parse(raw);
+        CONFIG = (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.fields)) ? cloneConfig(DEFAULT_CONFIG) : parsed;
+      } catch (e) {
+        console.error("Config okunamadı, varsayılan kullanılıyor", e);
+        CONFIG = cloneConfig(DEFAULT_CONFIG);
+      }
+    }
+
+    function saveConfigToStorage() {
+      try { localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(CONFIG)); }
+      catch (e) { console.error("Config kaydedilemedi", e); }
+    }
+
+    function getDataStorageKey() {
+      const base = CONFIG && CONFIG.storageKey ? String(CONFIG.storageKey).trim() : "tez_form_data_v2";
+      return base + "_data";
+    }
+
+    function loadDataFromStorage() {
+      try {
+        const raw = localStorage.getItem(getDataStorageKey());
+        if (!raw) { data = []; return; }
+        const parsed = JSON.parse(raw);
+        data = Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.error("Data okunamadı", e);
+        data = [];
+      }
+    }
+
+    function saveDataToStorage() {
+      try { localStorage.setItem(getDataStorageKey(), JSON.stringify(data)); }
+      catch (e) { console.error("Data kaydedilemedi", e); }
+    }
+
+    function updateConfigMetaUI() {
+      const projectName = CONFIG.projectName || "Tez Formu";
+      const target = CONFIG.targetCount != null ? String(CONFIG.targetCount) : "0";
+
+      const labelEl = document.getElementById("projectLabel");
+      if (labelEl) labelEl.textContent = projectName;
+      const chipNameEl = document.getElementById("chipProjectName");
+      if (chipNameEl) chipNameEl.textContent = projectName;
+      const headerTargetEl = document.getElementById("headerTarget");
+      if (headerTargetEl) headerTargetEl.textContent = target;
+    }
+
+    function applyNewConfig(newCfg) {
+      CONFIG = cloneConfig(newCfg);
+      saveConfigToStorage();
+      updateConfigMetaUI();
+      loadDataFromStorage();
+      renderDynamicFields();
+      renderDataTable();
+      updateProgressUI();
+      updateAnalysis();
+
+      const form = document.getElementById("dataForm");
+      if (form) form.reset();
+
+      // custom select reset
+      (CONFIG.fields || []).forEach(f => {
+        if (f.type === "select") {
+          const root = document.querySelector(`.cselect[data-field-id="${CSS.escape(f.id)}"]`);
+          if (root) setCSelectValue(root, "", "Seçiniz", true);
+          const hidden = document.getElementById("field-" + f.id);
+          if (hidden) hidden.value = "";
+        }
+      });
+
+      refreshAllFieldStatuses();
+    }
+
+    function resetConfigToDefault() {
+      const ok = confirm("Varsayılan TBI config'ine dönmek istiyor musun?");
+      if (!ok) return;
+      applyNewConfig(DEFAULT_CONFIG);
+    }
+
+    /* =========================
+       Form Render
+       ========================= */
+    function renderDynamicFields() {
+      const container = document.getElementById("dynamicFieldsContainer");
+      if (!container) return;
+      container.innerHTML = "";
+
+      if (!CONFIG.fields || !CONFIG.fields.length) {
+        const p = document.createElement("p");
+        p.className = "empty-state";
+        p.textContent = "Alan tanımı yok. Config içindeki fields dizisi boş.";
+        container.appendChild(p);
+        return;
+      }
+
+      const byGroup = {};
+      CONFIG.fields.forEach(f => {
+        const g = f.group || "Genel";
+        if (!byGroup[g]) byGroup[g] = [];
+        byGroup[g].push(f);
+      });
+
+      Object.keys(byGroup).forEach(groupName => {
+        const groupFields = byGroup[groupName];
+
+        const header = document.createElement("div");
+        header.className = "section-label";
+        header.textContent = groupName;
+        container.appendChild(header);
+
+        const grid = document.createElement("div");
+        grid.className = "preview-form-grid";
+
+        groupFields.forEach(f => {
+          const wrap = document.createElement("div");
+          wrap.className = "preview-field";
+
+          const lbl = document.createElement("label");
+          const titleSpan = document.createElement("span");
+          titleSpan.textContent = f.label || f.id;
+          lbl.appendChild(titleSpan);
+
+          if (f.type === "select") {
+            // custom select UI + hidden input (same id scheme)
+            const root = document.createElement("div");
+            root.className = "cselect field-control";
+            root.setAttribute("data-placeholder", "Seçiniz");
+            root.setAttribute("data-field-id", f.id);
+
+            const hidden = document.createElement("input");
+            hidden.type = "hidden";
+            hidden.id = "field-" + f.id;
+            hidden.value = "";
+
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "cselect-btn";
+            btn.setAttribute("aria-haspopup", "listbox");
+            btn.setAttribute("aria-expanded", "false");
+
+            const valueSpan = document.createElement("span");
+            valueSpan.className = "cselect-value";
+            valueSpan.textContent = "Seçiniz";
+
+            const caret = document.createElement("span");
+            caret.className = "cselect-caret";
+            caret.textContent = "▾";
+
+            btn.appendChild(valueSpan);
+            btn.appendChild(caret);
+
+            const menu = document.createElement("div");
+            menu.className = "cselect-menu";
+            menu.setAttribute("role", "listbox");
+
+            // Options
+            if (Array.isArray(f.options)) {
+              f.options.forEach(o => {
+                const optBtn = document.createElement("button");
+                optBtn.type = "button";
+                optBtn.className = "cselect-option";
+                optBtn.dataset.value = String(o.value);
+                optBtn.textContent = o.label;
+                menu.appendChild(optBtn);
+              });
+            }
+
+            root.appendChild(hidden);
+            root.appendChild(btn);
+            root.appendChild(menu);
+
+            lbl.appendChild(root);
+
+            // init after appended
+            setTimeout(() => initCSelect(root), 0);
+
+            // when changed, sync hidden too (already), and status update
+            root.addEventListener("cselect:change", () => refreshAllFieldStatuses());
+
+          } else {
+            const inputEl = document.createElement("input");
+            inputEl.id = "field-" + f.id;
+            inputEl.type = f.type === "number" ? "number" : "text";
+            inputEl.className = "field-control";
+            inputEl.dataset.fieldType = inputEl.type;
+
+            inputEl.addEventListener("input", () => updateFieldStatus(inputEl));
+            inputEl.addEventListener("change", () => updateFieldStatus(inputEl));
+
+            lbl.appendChild(inputEl);
+          }
+
+          wrap.appendChild(lbl);
+
+          if (f.hint) {
+            const h = document.createElement("span");
+            h.className = "hint";
+            h.textContent = f.hint;
+            wrap.appendChild(h);
+          }
+
+          grid.appendChild(wrap);
+        });
+
+        container.appendChild(grid);
+      });
+
+      refreshAllFieldStatuses();
+    }
+
+    /* =========================
+       Field Status
+       ========================= */
+    function updateFieldStatus(controlEl) {
+      if (!controlEl) return;
+      // ID input'u dahil etmek istemiyorsan:
+      if (controlEl.id === "field-_id") return;
+
+      let value = "";
+      if (controlEl.classList.contains("cselect")) {
+        const fieldId = controlEl.getAttribute("data-field-id");
+        const hidden = document.getElementById("field-" + fieldId);
+        value = hidden ? String(hidden.value || "").trim() : "";
+      } else {
+        value = String(controlEl.value || "").trim();
+      }
+
+      controlEl.classList.remove("input-status-empty", "input-status-filled");
+      controlEl.classList.add(value ? "input-status-filled" : "input-status-empty");
+    }
+
+    function refreshAllFieldStatuses() {
+      const container = document.getElementById("dataForm");
+      if (!container) return;
+      const controls = container.querySelectorAll(".field-control");
+      controls.forEach(el => updateFieldStatus(el));
+    }
+
+    /* =========================
+       Progress + Table
+       ========================= */
+    function updateProgressUI() {
+      const total = CONFIG.targetCount || 0;
+      const current = Array.isArray(data) ? data.length : 0;
+      const ratio = total > 0 ? Math.min(current / total, 1) : 0;
+      const percent = total > 0 ? ratio * 100 : 0;
+
+      const textEl = document.getElementById("progressText");
+      const percentEl = document.getElementById("progressPercent");
+      const barEl = document.getElementById("progressBar");
+
+      if (textEl) textEl.textContent = total > 0 ? (current + " / " + total + " hasta") : (current + " kayıt");
+      if (percentEl) percentEl.textContent = total > 0 ? (percent.toFixed(1).replace(/\.0$/, "") + "%") : "0%";
+      if (barEl) {
+        const safePercent = percent > 2 ? percent : (current > 0 ? 2 : 0);
+        barEl.style.width = safePercent + "%";
+      }
+    }
+
+    function getColumns() {
+      const cols = [{ id: "_id", label: "HastaID" }];
+      (CONFIG.fields || []).forEach(f => cols.push({ id: f.id, label: f.csvLabel || f.id }));
+      return cols;
+    }
+
+    function renderDataTable() {
+      const thead = document.getElementById("dataTableHead");
+      const tbody = document.getElementById("dataTableBody");
+      if (!thead || !tbody) return;
+
+      thead.innerHTML = "";
+      tbody.innerHTML = "";
+
+      const cols = getColumns();
+      const headRow = document.createElement("tr");
+      cols.forEach(c => {
+        const th = document.createElement("th");
+        th.textContent = c.label;
+        headRow.appendChild(th);
+      });
+      thead.appendChild(headRow);
+
+      if (!data.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = cols.length;
+        td.className = "empty-state";
+        td.textContent = "Henüz veri yok. Sol formdan kayıt ekleyebilirsin.";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
+
+      data.forEach(row => {
+        const tr = document.createElement("tr");
+        cols.forEach(c => {
+          const td = document.createElement("td");
+          let val = row[c.id];
+          if (val === null || val === undefined) val = "";
+          td.textContent = val;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* =========================
+       Search / Fill / Clear
+       ========================= */
+    function normalizeId(id) { return (id || "").trim(); }
+
+    function handleSearch() {
+      const input = document.getElementById("searchId");
+      const id = normalizeId(input ? input.value : "");
+      if (!id) { alert("Önce hasta ID yaz."); return; }
+
+      const idx = data.findIndex(r => r._id === id);
+      const idField = document.getElementById("field-_id");
+      if (idField) idField.value = id;
+
+      fillForm(idx === -1 ? null : data[idx]);
+    }
+
+    function startNew() {
+      const input = document.getElementById("searchId");
+      const id = normalizeId(input ? input.value : "");
+      if (!id) { alert("Yeni kayıt için önce bir ID yaz."); return; }
+
+      const idField = document.getElementById("field-_id");
+      if (idField) idField.value = id;
+      fillForm(null);
+    }
+
+    function fillForm(record) {
+      (CONFIG.fields || []).forEach(f => {
+        if (f.type === "select") {
+          const root = document.querySelector(`.cselect[data-field-id="${CSS.escape(f.id)}"]`);
+          const hidden = document.getElementById("field-" + f.id);
+          const val = record ? record[f.id] : null;
+          const v = (val === null || val === undefined) ? "" : String(val);
+
+          if (hidden) hidden.value = v;
+          if (root) setCSelectValue(root, v, null, true);
+        } else {
+          const el = document.getElementById("field-" + f.id);
+          if (!el) return;
+          if (!record) el.value = "";
+          else {
+            const val = record[f.id];
+            el.value = (val === null || val === undefined) ? "" : String(val);
+          }
+        }
+      });
+      refreshAllFieldStatuses();
+    }
+
+    function clearForm() {
+      const form = document.getElementById("dataForm");
+      if (!form) return;
+
+      const idField = document.getElementById("field-_id");
+      const currentId = idField ? idField.value : "";
+
+      form.reset();
+      if (idField) idField.value = currentId;
+
+      // custom selects reset
+      (CONFIG.fields || []).forEach(f => {
+        if (f.type !== "select") return;
+        const root = document.querySelector(`.cselect[data-field-id="${CSS.escape(f.id)}"]`);
+        const hidden = document.getElementById("field-" + f.id);
+        if (hidden) hidden.value = "";
+        if (root) setCSelectValue(root, "", "Seçiniz", true);
+      });
+
+      refreshAllFieldStatuses();
+    }
+
+    function copyId() {
+      const idField = document.getElementById("field-_id");
+      const id = normalizeId(idField ? idField.value : "");
+      if (!id) { alert("Kopyalanacak ID yok."); return; }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(id)
+          .then(() => alert("ID panoya kopyalandı."))
+          .catch(() => alert("ID kopyalanamadı, elle seçip kopyalayabilirsin."));
+      } else {
+        alert("Tarayıcı clipboard API desteklemiyor, ID alanını elle kopyalayabilirsin.");
+      }
+    }
+
+    /* =========================
+       Save / Delete
+       ========================= */
+    function readFieldValue(field) {
+      if (field.type === "select") {
+        const hidden = document.getElementById("field-" + field.id);
+        const raw = hidden ? String(hidden.value || "").trim() : "";
+        return raw ? raw : null;
+      }
+
+      const el = document.getElementById("field-" + field.id);
+      if (!el) return null;
+      const raw = String(el.value || "").trim();
+      if (!raw) return null;
+
+      if (field.type === "number") {
+        const n = Number(raw);
+        return Number.isNaN(n) ? null : n;
+      }
+      return raw;
+    }
+
+    function collectFormData() {
+      const idField = document.getElementById("field-_id");
+      const id = normalizeId(idField ? idField.value : "");
+      if (!id) { alert("Hasta ID boş olamaz."); return null; }
+
+      const rec = { _id: id };
+      (CONFIG.fields || []).forEach(f => { rec[f.id] = readFieldValue(f); });
+      return rec;
+    }
+
+    function saveRecord() {
+      const rec = collectFormData();
+      if (!rec) return;
+
+      const idx = data.findIndex(r => r._id === rec._id);
+      if (idx === -1) data.push(rec);
+      else data[idx] = Object.assign({}, data[idx], rec);
+
+      saveDataToStorage();
+      renderDataTable();
+      updateProgressUI();
+      updateAnalysis();
+      refreshAllFieldStatuses();
+      alert("Kayıt kaydedildi / güncellendi.");
+    }
+
+    function deleteRecord() {
+      const idField = document.getElementById("field-_id");
+      const id = normalizeId(idField ? idField.value : "");
+      if (!id) { alert("Silinecek kayıt için önce bir ID seç."); return; }
+
+      const idx = data.findIndex(r => r._id === id);
+      if (idx === -1) { alert("Bu ID için kayıt bulunamadı."); return; }
+
+      const ok = confirm("Bu hastaya ait kaydı silmek istediğine emin misin? (" + id + ")");
+      if (!ok) return;
+
+      data.splice(idx, 1);
+      saveDataToStorage();
+      renderDataTable();
+      updateProgressUI();
+      updateAnalysis();
+
+      const form = document.getElementById("dataForm");
+      if (form) form.reset();
+      if (idField) idField.value = "";
+
+      // custom selects reset
+      (CONFIG.fields || []).forEach(f => {
+        if (f.type !== "select") return;
+        const root = document.querySelector(`.cselect[data-field-id="${CSS.escape(f.id)}"]`);
+        const hidden = document.getElementById("field-" + f.id);
+        if (hidden) hidden.value = "";
+        if (root) setCSelectValue(root, "", "Seçiniz", true);
+      });
+
+      refreshAllFieldStatuses();
+      alert("Kayıt silindi.");
+    }
+
+    /* =========================
+       CSV
+       ========================= */
+    function exportCSV() {
+      if (!data.length) { alert("Dışa aktarılacak kayıt yok."); return; }
+      const cols = getColumns();
+      const header = cols.map(c => c.label).join(",");
+      const rows = data.map(row => cols.map(c => {
+        let val = row[c.id];
+        if (val === null || val === undefined) val = "";
+        let s = String(val).replace(/"/g, '""');
+        return '"' + s + '"';
+      }).join(","));
+      const csv = [header].concat(rows).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = (CONFIG.projectName || "tez_form") + "_dataset.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function triggerCSVImport() {
+      const input = document.getElementById("csvFileInput");
+      if (!input) return;
+      input.value = "";
+      input.click();
+    }
+
+    function handleCSVFileChange(event) {
+      const file = event && event.target && event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const text = String(e.target && e.target.result ? e.target.result : "");
+        importCSVText(text);
+        event.target.value = "";
+      };
+      reader.onerror = function () { alert("CSV okunamadı."); };
+      reader.readAsText(file, "utf-8");
+    }
+
+    function parseCSVLine(line) {
+      const result = [];
+      let current = "";
+      let insideQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (insideQuotes && i + 1 < line.length && line[i + 1] === '"') { current += '"'; i++; }
+          else insideQuotes = !insideQuotes;
+        } else if (ch === "," && !insideQuotes) {
+          result.push(current); current = "";
+        } else current += ch;
+      }
+      result.push(current);
+      return result;
+    }
+
+    function getFieldById(id) { return (CONFIG.fields || []).find(f => f.id === id) || null; }
+
+    function importCSVText(text) {
+      if (!text) { alert("Boş CSV dosyası."); return; }
+
+      const normalized = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+      const lines = normalized.split("\n").filter(line => line.trim() !== "");
+      if (!lines.length || lines.length === 1) { alert("Geçerli satır bulunamadı."); return; }
+
+      const headerCells = parseCSVLine(lines[0]);
+      const cols = getColumns();
+      const indexToKey = headerCells.map(label => {
+        const c = cols.find(col => col.label === label);
+        return c ? c.id : null;
+      });
+
+      let importedCount = 0;
+
+      for (let i = 1; i < lines.length; i++) {
+        const cells = parseCSVLine(lines[i]);
+        if (!cells || !cells.length) continue;
+
+        const rec = {};
+        for (let j = 0; j < cells.length; j++) {
+          const key = indexToKey[j];
+          if (!key) continue;
+
+          const raw = cells[j].trim();
+          if (raw === "") continue;
+
+          if (key === "_id") rec._id = raw;
+          else {
+            const field = getFieldById(key);
+            if (field && field.type === "number") {
+              const n = Number(raw);
+              rec[key] = Number.isNaN(n) ? null : n;
+            } else rec[key] = raw;
+          }
+        }
+
+        if (!rec._id) continue;
+
+        const existingIndex = data.findIndex(r => r._id === rec._id);
+        if (existingIndex === -1) data.push(rec);
+        else data[existingIndex] = Object.assign({}, data[existingIndex], rec);
+
+        importedCount++;
+      }
+
+      saveDataToStorage();
+      renderDataTable();
+      updateProgressUI();
+      updateAnalysis();
+      refreshAllFieldStatuses();
+      alert("CSV yüklendi. Güncellenen / eklenen kayıt sayısı: " + importedCount + ".");
+    }
+
+    /* =========================
+       Analysis
+       ========================= */
+    function getNumericFields() { return (CONFIG.fields || []).filter(f => f.type === "number"); }
+    function getCategoricalFields() { return (CONFIG.fields || []).filter(f => f.type === "select"); }
+
+    function computeNumericStats(field) {
+      let n = 0, sum = 0, sumsq = 0, min = null, max = null;
+
+      data.forEach(rec => {
+        const val = rec[field.id];
+        if (val === null || val === undefined || val === "") return;
+        const num = Number(val);
+        if (Number.isNaN(num)) return;
+        n++; sum += num; sumsq += num * num;
+        if (min === null || num < min) min = num;
+        if (max === null || num > max) max = num;
+      });
+
+      if (n === 0) return { n: 0, mean: null, sd: null, min: null, max: null };
+      const mean = sum / n;
+      const variance = (sumsq / n) - (mean * mean);
+      const sd = variance > 0 ? Math.sqrt(variance) : 0;
+      return { n, mean, sd, min, max };
+    }
+
+    function renderNumericAnalysis() {
+      const container = document.getElementById("analysisNumeric");
+      if (!container) return;
+      container.innerHTML = "";
+
+      const numericFields = getNumericFields();
+      if (!numericFields.length || !data.length) {
+        const p = document.createElement("p");
+        p.className = "empty-state";
+        p.style.padding = "6px";
+        p.textContent = "Henüz sayısal alan veya kayıt yok.";
+        container.appendChild(p);
+        return;
+      }
+
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const trh = document.createElement("tr");
+      ["Değişken", "n", "Ort.", "SD", "Min", "Max"].forEach(t => {
+        const th = document.createElement("th");
+        th.textContent = t;
+        trh.appendChild(th);
+      });
+      thead.appendChild(trh);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+
+      numericFields.forEach(f => {
+        const st = computeNumericStats(f);
+        const tr = document.createElement("tr");
+
+        const nameTd = document.createElement("td");
+        nameTd.textContent = f.csvLabel || f.id;
+        tr.appendChild(nameTd);
+
+        const nTd = document.createElement("td");
+        nTd.textContent = st.n;
+        tr.appendChild(nTd);
+
+        function fmt(x) {
+          if (x === null || x === undefined) return "";
+          const v = Number(x);
+          if (Number.isNaN(v)) return "";
+          const s = v.toFixed(2);
+          const s1 = v.toFixed(1);
+          if (s.endsWith("00")) return v.toFixed(0);
+          if (s.endsWith("0")) return s1.replace(/\.0$/, "");
+          return s;
+        }
+
+        const meanTd = document.createElement("td"); meanTd.textContent = fmt(st.mean); tr.appendChild(meanTd);
+        const sdTd = document.createElement("td"); sdTd.textContent = fmt(st.sd); tr.appendChild(sdTd);
+        const minTd = document.createElement("td"); minTd.textContent = fmt(st.min); tr.appendChild(minTd);
+        const maxTd = document.createElement("td"); maxTd.textContent = fmt(st.max); tr.appendChild(maxTd);
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      container.appendChild(table);
+    }
+
+    function renderCategoricalAnalysis() {
+      const container = document.getElementById("analysisCategorical");
+      if (!container) return;
+      container.innerHTML = "";
+
+      const catFields = getCategoricalFields();
+      if (!catFields.length || !data.length) {
+        const p = document.createElement("p");
+        p.className = "empty-state";
+        p.style.padding = "6px";
+        p.textContent = "Henüz kategorik alan veya kayıt yok.";
+        container.appendChild(p);
+        return;
+      }
+
+      catFields.forEach(f => {
+        const box = document.createElement("div");
+        box.style.marginBottom = "8px";
+
+        const title = document.createElement("div");
+        title.style.fontSize = "11px";
+        title.style.fontWeight = "700";
+        title.style.marginBottom = "4px";
+        title.textContent = f.csvLabel || f.id;
+        box.appendChild(title);
+
+        const counts = {};
+        let total = 0;
+
+        data.forEach(rec => {
+          const v = rec[f.id];
+          if (v === null || v === undefined || v === "") return;
+          const key = String(v);
+          counts[key] = (counts[key] || 0) + 1;
+          total++;
+        });
+
+        if (!total) {
+          const p = document.createElement("span");
+          p.className = "hint";
+          p.textContent = "Veri yok.";
+          box.appendChild(p);
+        } else {
+          const list = document.createElement("div");
+          list.style.fontSize = "10px";
+          list.style.color = "var(--text-2)";
+
+          Object.keys(counts).sort().forEach(key => {
+            const line = document.createElement("div");
+            const opt = (f.options || []).find(o => String(o.value) === key);
+            const label = opt ? opt.label : key;
+            const n = counts[key];
+            const pct = ((n / total) * 100).toFixed(1).replace(/\.0$/, "");
+            line.textContent = key + " (" + label + "): " + n + " (" + pct + "%)";
+            list.appendChild(line);
+          });
+
+          box.appendChild(list);
+        }
+
+        container.appendChild(box);
+      });
+    }
+
+    function updateAnalysis() {
+      renderNumericAnalysis();
+      renderCategoricalAnalysis();
+    }
+
+    /* =========================
+       Config JSON Import
+       ========================= */
+    function triggerConfigImport() {
+      const input = document.getElementById("configJsonInput");
+      if (!input) return;
+      input.value = "";
+      input.click();
+    }
+
+    function handleConfigJsonChange(event) {
+      const file = event && event.target && event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const text = String(e.target && e.target.result ? e.target.result : "");
+          const parsed = JSON.parse(text);
+          if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.fields)) {
+            alert("Geçersiz config JSON formatı.");
+            return;
+          }
+          applyNewConfig(parsed);
+          alert("Config yüklendi ve aktif hale getirildi.");
+        } catch (err) {
+          console.error(err);
+          alert("Config JSON parse edilemedi.");
+        } finally {
+          event.target.value = "";
+        }
+      };
+
+      reader.onerror = function () { alert("Config JSON okunamadı."); };
+      reader.readAsText(file, "utf-8");
+    }
+
+    /* =========================
+       INIT
+       ========================= */
+    window.addEventListener("DOMContentLoaded", function () {
+      initThemeUI();
+
+      loadConfigFromStorage();
+      updateConfigMetaUI();
+      loadDataFromStorage();
+      renderDynamicFields();
+      renderDataTable();
+      updateProgressUI();
+      updateAnalysis();
+      refreshAllFieldStatuses();
+
+      // Bind global functions
+      window.handleSearch = handleSearch;
+      window.startNew = startNew;
+      window.saveRecord = saveRecord;
+      window.clearForm = clearForm;
+      window.copyId = copyId;
+      window.deleteRecord = deleteRecord;
+      window.exportCSV = exportCSV;
+      window.triggerCSVImport = triggerCSVImport;
+      window.handleCSVFileChange = handleCSVFileChange;
+      window.triggerConfigImport = triggerConfigImport;
+      window.handleConfigJsonChange = handleConfigJsonChange;
+      window.resetConfigToDefault = resetConfigToDefault;
+    });
+  </script>
+</body>
+</html>
