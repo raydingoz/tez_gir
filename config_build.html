@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tez Form Builder – Konfigürasyonlu Veri Girişi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-elevated: #020617;
+      --accent: #3b82f6;
+      --border-subtle: rgba(148, 163, 184, 0.4);
+      --text-main: #e5e7eb;
+      --text-soft: #9ca3af;
+      --radius-xl: 16px;
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.7);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      background: radial-gradient(circle at top, #0f172a, #020617 55%);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      padding: 24px;
+    }
+
+    .app-shell {
+      max-width: 1300px;
+      width: 100%;
+      background:
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.06), transparent 55%),
+        linear-gradient(135deg, #020617, #020617);
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: var(--shadow-soft);
+      padding: 20px 22px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .title-block h1 {
+      font-size: 20px;
+      letter-spacing: 0.03em;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-pill {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(59, 130, 246, 0.6);
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.22), rgba(59, 130, 246, 0.05));
+      color: #bfdbfe;
+    }
+
+    .title-sub {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .header-meta {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .chip {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.2), transparent 55%);
+    }
+
+    .chip strong {
+      color: #e5e7eb;
+      font-weight: 600;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 1024px) {
+      body {
+        padding: 12px;
+      }
+      .app-shell {
+        padding: 16px;
+      }
+      main {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.9), #020617);
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(75, 85, 99, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), transparent 55%);
+      mix-blend-mode: soft-light;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-header h2 {
+      font-size: 13px;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #9ca3af;
+    }
+
+    .card-header span {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #e5e7eb;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border-radius: 999px;
+      border: 1px solid transparent;
+      padding: 7px 14px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.45);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+    }
+
+    button.secondary {
+      background: transparent;
+      border-color: rgba(148, 163, 184, 0.65);
+      color: #e5e7eb;
+      box-shadow: none;
+    }
+
+    button.danger {
+      background: transparent;
+      border-color: rgba(248, 113, 113, 0.85);
+      color: #fecaca;
+      box-shadow: none;
+    }
+
+    button.ghost {
+      background: rgba(15, 23, 42, 0.85);
+      border-color: rgba(148, 163, 184, 0.45);
+      color: #e5e7eb;
+      box-shadow: none;
+      padding-inline: 10px;
+      font-size: 10px;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    button:not(:disabled):hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(37, 99, 235, 0.6);
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    }
+
+    button.secondary:not(:disabled):hover,
+    button.danger:not(:disabled):hover,
+    button.ghost:not(:disabled):hover {
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.9);
+      background: radial-gradient(circle at top, rgba(148, 163, 184, 0.2), rgba(15, 23, 42, 0.95));
+    }
+
+    .button-icon {
+      width: 12px;
+      height: 12px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    @media (max-width: 840px) {
+      .settings-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    label {
+      font-size: 11px;
+      color: var(--text-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      padding: 6px 9px;
+      font-size: 12px;
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    textarea {
+      border-radius: 10px;
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: rgba(59, 130, 246, 0.9);
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.85), 0 0 0 10px rgba(37, 99, 235, 0.25);
+      background: #020617;
+    }
+
+    .hint {
+      font-size: 10px;
+      color: var(--text-soft);
+    }
+
+    .group-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .group-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: #cbd5f5;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .field-table-wrapper {
+      border-radius: 12px;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.98), rgba(3, 7, 18, 0.98));
+      max-height: 260px;
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: linear-gradient(180deg, #020617, #020617);
+    }
+
+    th,
+    td {
+      padding: 6px 8px;
+      text-align: left;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+      white-space: nowrap;
+    }
+
+    th {
+      font-weight: 500;
+      color: #9ca3af;
+      position: sticky;
+      top: 0;
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    tbody tr:hover {
+      background: rgba(30, 64, 175, 0.4);
+    }
+
+    .tag-pill {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: #a5b4fc;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .small-btn {
+      font-size: 9px;
+      padding: 3px 8px;
+    }
+
+    .divider {
+      margin: 6px 0;
+      border-top: 1px solid rgba(31, 41, 55, 0.9);
+    }
+
+    .progress-box {
+      margin-top: 6px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(59, 130, 246, 0.5);
+      background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.22), rgba(15, 23, 42, 0.95));
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      margin-bottom: 6px;
+      color: #bfdbfe;
+    }
+
+    .progress-bar-outer {
+      position: relative;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.6);
+    }
+
+    .progress-bar-inner {
+      position: absolute;
+      inset: 0;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #16a34a, #22c55e);
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.8);
+      transition: width 0.25s ease-out;
+    }
+
+    .preview-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 8px;
+    }
+
+    @media (max-width: 840px) {
+      .preview-form-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .preview-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .pill-small {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(59, 130, 246, 0.6);
+      background: rgba(37, 99, 235, 0.16);
+      color: #bfdbfe;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .empty-state {
+      font-size: 11px;
+      color: var(--text-soft);
+      text-align: center;
+      padding: 10px;
+    }
+
+    .input-status-empty {
+      border-color: rgba(248, 113, 113, 0.95) !important;
+      background: rgba(15, 23, 42, 0.98) !important;
+      box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.55);
+    }
+
+    .input-status-filled {
+      border-color: rgba(34, 197, 94, 0.95) !important;
+      background: rgba(15, 23, 42, 0.98) !important;
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.55);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="title-block">
+        <h1>
+          <span class="title-pill">Tez Form Builder</span>
+          Konfigürasyonlu Veri Girişi
+        </h1>
+        <p class="title-sub">
+          Form alanlarını HTML içinden tanımla, düzenle, sil; aynı sayfadan veri gir ve CSV çıktısını al.
+        </p>
+      </div>
+      <div class="header-meta">
+        <div class="chip"><strong>Config:</strong>&nbsp;localStorage / JSON</div>
+        <div class="chip"><strong>Veri:</strong>&nbsp;CSV / Excel uyumlu</div>
+      </div>
+    </header>
+
+    <main>
+      <!-- SOL: CONFIG EDITÖR -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2>Form Yapılandırma</h2>
+            <span>Proje ayarlarını ve alan listesini buradan yönet.</span>
+          </div>
+          <div class="badge">
+            <span class="badge-dot"></span>
+            CONFIG
+          </div>
+        </div>
+
+        <!-- Proje Ayarları -->
+        <div style="position:relative;z-index:1;display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+          <div class="section-label">Proje Ayarları</div>
+          <div class="settings-grid">
+            <label>
+              Proje Adı
+              <input type="text" id="cfg-projectName" placeholder="örn. TBI DAI Çalışması" />
+            </label>
+            <label>
+              Storage Key
+              <input type="text" id="cfg-storageKey" placeholder="örn. tbi_dai_data_v1" />
+              <span class="hint">localStorage anahtarı (aynı key = aynı data havuzu).</span>
+            </label>
+            <label>
+              Hedef Hasta Sayısı
+              <input type="number" id="cfg-targetCount" min="1" step="1" />
+              <span class="hint">Progress bar bu değere göre hesaplanır.</span>
+            </label>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Gruplar -->
+          <div>
+            <div class="section-label">Parametre Grupları</div>
+            <div class="group-badges" id="groupBadges"></div>
+            <span class="hint">
+              Grup adları alanların içinden otomatik oluşur (Demografi, Klinik, Lab, Görüntüleme gibi).
+            </span>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Alan listesi -->
+          <div class="row" style="justify-content:space-between;align-items:center;">
+            <div class="section-label">Alanlar</div>
+            <div class="button-row">
+              <button type="button" class="secondary small-btn" onclick="openFieldEditor(null)">
+                <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 5v14M5 12h14"></path>
+                </svg>
+                Yeni Alan
+              </button>
+              <button type="button" class="ghost small-btn" onclick="exportConfigJSON()">
+                JSON Dışa Aktar
+              </button>
+              <button type="button" class="ghost small-btn" onclick="triggerConfigImport()">
+                JSON Yükle
+              </button>
+              <input
+                type="file"
+                id="configFileInput"
+                accept=".json,application/json"
+                style="display:none"
+                onchange="handleConfigFileChange(event)"
+              />
+            </div>
+          </div>
+
+          <div class="field-table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Grup</th>
+                  <th>Label</th>
+                  <th>Alan ID</th>
+                  <th>CSV Label</th>
+                  <th>Tip</th>
+                  <th>Gerekli?</th>
+                  <th>Aksiyon</th>
+                </tr>
+              </thead>
+              <tbody id="fieldTableBody"></tbody>
+            </table>
+          </div>
+
+          <!-- Alan editörü -->
+          <div id="fieldEditor" style="margin-top:10px;display:none;">
+            <div class="section-label">Alan Düzenle / Ekle</div>
+            <div class="settings-grid">
+              <label>
+                Grup
+                <input type="text" id="fe-group" placeholder="örn. Demografi, Klinik, Lab" />
+              </label>
+              <label>
+                Alan ID
+                <input type="text" id="fe-id" placeholder="örn. age, gcs, na" />
+                <span class="hint">Kısayol isim; veri setinde kolon adı olarak kullanılabilir.</span>
+              </label>
+              <label>
+                CSV Label
+                <input type="text" id="fe-csvLabel" placeholder="örn. Yas, GKS, Na_mmolL" />
+              </label>
+            </div>
+            <div class="settings-grid" style="margin-top:8px;">
+              <label>
+                Görünen Etiket (Label)
+                <input type="text" id="fe-label" placeholder="Örn. GKS (ilk / en kötü)" />
+              </label>
+              <label>
+                Tip
+                <select id="fe-type">
+                  <option value="number">Sayı (number)</option>
+                  <option value="text">Metin (text)</option>
+                  <option value="select">Seçenek (select)</option>
+                </select>
+              </label>
+              <label>
+                Gerekli?
+                <select id="fe-required">
+                  <option value="false">Hayır</option>
+                  <option value="true">Evet</option>
+                </select>
+              </label>
+            </div>
+            <div style="margin-top:8px;">
+              <label>
+                Seçenekler (sadece select için)
+                <textarea
+                  id="fe-options"
+                  placeholder="Her satıra bir seçenek: value|Label&#10;Ör:&#10;1|Erkek&#10;2|Kadın"
+                ></textarea>
+              </label>
+            </div>
+            <div style="margin-top:4px;">
+              <label>
+                Açıklama / İpucu (opsiyonel)
+                <textarea
+                  id="fe-hint"
+                  placeholder="Bu alan için formda gösterilecek kısa açıklama."
+                ></textarea>
+              </label>
+            </div>
+            <div class="button-row" style="margin-top:6px;justify-content:space-between;">
+              <div class="button-row">
+                <button type="button" class="secondary small-btn" onclick="saveFieldFromEditor()">
+                  Kaydet
+                </button>
+                <button type="button" class="ghost small-btn" onclick="cancelFieldEditor()">
+                  İptal
+                </button>
+              </div>
+              <span class="hint">Alan ID benzersiz olmalı; var olanı düzenliyorsan aynı ID kalsın.</span>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="button-row" style="justify-content:space-between;">
+            <button type="button" class="secondary small-btn" onclick="saveConfigToStorage()">
+              Config'i Kaydet
+            </button>
+            <button type="button" class="danger small-btn" onclick="resetConfigToDefault()">
+              Varsayılan Config
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SAĞ: PREVIEW + VERİ GİRİŞİ -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2>Veri Girişi Önizleme</h2>
+            <span>Aktif konfigürasyona göre otomatik üretilmiş form ve CSV çıkışı.</span>
+          </div>
+          <div class="badge">
+            <span class="badge-dot"></span>
+            PREVIEW
+          </div>
+        </div>
+
+        <div style="position:relative;z-index:1;display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+          <div class="row" style="justify-content:space-between;align-items:center;">
+            <div>
+              <div class="section-label">Proje</div>
+              <span id="previewProjectName" class="tag-pill">–</span>
+            </div>
+            <div class="button-row">
+              <button type="button" class="secondary small-btn" onclick="exportDataCSV()">
+                CSV Dışa Aktar
+              </button>
+            </div>
+          </div>
+
+          <div class="progress-box">
+            <div class="progress-top">
+              <span id="previewProgressText">0 / 0 kayıt</span>
+              <span id="previewProgressPercent">0%</span>
+            </div>
+            <div class="progress-bar-outer">
+              <div class="progress-bar-inner" id="previewProgressBar"></div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <form id="previewForm" onsubmit="event.preventDefault(); savePreviewRecord();">
+            <div class="section-label">ID &amp; Temel Bilgiler</div>
+            <div class="preview-form-grid" style="margin-bottom:8px;">
+              <div class="preview-field">
+                <label>
+                  <span>Hasta ID / Kayıt ID</span>
+                  <input
+                    type="text"
+                    id="pf-id"
+                    placeholder="örn. TBI-001, SEPSIS-01"
+                  />
+                </label>
+                <span class="hint">
+                  Bu ID'ye göre kayıt eklenir/güncellenir. Aynı ID ile tekrar kaydedersen üzerine yazar.
+                </span>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div id="previewFormFields"></div>
+
+            <div class="button-row" style="margin-top:10px;justify-content:space-between;">
+              <div class="button-row" style="gap:6px;">
+                <button type="submit" class="small-btn">
+                  Kaydet / Güncelle
+                </button>
+                <button type="button" class="secondary small-btn" onclick="clearPreviewForm()">
+                  Formu Temizle
+                </button>
+              </div>
+              <button type="button" class="ghost small-btn" onclick="copyPreviewId()">
+                ID'yi Kopyala
+              </button>
+            </div>
+          </form>
+
+          <div class="divider"></div>
+
+          <div class="field-table-wrapper">
+            <table>
+              <thead id="dataTableHead"></thead>
+              <tbody id="dataTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // ------- CONFIG & DATA MODEL --------
+
+    const CONFIG_STORAGE_KEY = 'tez_form_config_v1';
+
+    const DEFAULT_CONFIG = {
+      projectName: 'Örnek Tez Projesi',
+      storageKey: 'tez_ornek_data_v1',
+      targetCount: 100,
+      fields: [
+        {
+          id: 'age',
+          label: 'Yaş (yıl)',
+          csvLabel: 'Yas',
+          type: 'number',
+          group: 'Demografi',
+          required: false,
+          hint: 'Tam yıl cinsinden.'
+        },
+        {
+          id: 'sex',
+          label: 'Cinsiyet',
+          csvLabel: 'CinsiyetKod',
+          type: 'select',
+          group: 'Demografi',
+          required: false,
+          options: [
+            { value: '1', label: '1 - Erkek' },
+            { value: '2', label: '2 - Kadın' },
+            { value: '0', label: '0 - Bilinmiyor / Diğer' }
+          ],
+          hint: 'Numerik kodlu, model için hazır.'
+        },
+        {
+          id: 'gcs',
+          label: 'GKS (ilk / en kötü)',
+          csvLabel: 'GKS',
+          type: 'number',
+          group: 'Klinik',
+          required: false,
+          hint: '3–15 arası, toplam skor.'
+        },
+        {
+          id: 'na',
+          label: 'Sodyum (mmol/L)',
+          csvLabel: 'Na_mmolL',
+          type: 'number',
+          group: 'Lab',
+          required: false,
+          hint: 'Başvuruya en yakın Na.'
+        },
+        {
+          id: 'glu',
+          label: 'Glukoz (mg/dL)',
+          csvLabel: 'Glu_mgdl',
+          type: 'number',
+          group: 'Lab',
+          required: false,
+          hint: 'Başvuru glukozu; istersen log-transform.'
+        }
+      ]
+    };
+
+    let config = null;
+    let data = [];
+    let editingFieldIndex = null; // null = yeni alan, sayı = düzenleme
+
+    function loadConfigFromStorage() {
+      try {
+        const raw = localStorage.getItem(CONFIG_STORAGE_KEY);
+        if (!raw) {
+          config = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+          return;
+        }
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object') {
+          config = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+        } else {
+          config = parsed;
+        }
+      } catch (e) {
+        console.error('Config okunamadı, varsayılan kullanılıyor', e);
+        config = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+      }
+    }
+
+    function saveConfigToStorage() {
+      try {
+        localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
+        alert('Config localStorage\'a kaydedildi.');
+      } catch (e) {
+        console.error('Config kaydedilemedi', e);
+        alert('Config kaydedilemedi.');
+      }
+      // Config güncellenince preview ve tabloyu yenile
+      loadDataFromStorage();
+      renderConfigUI();
+      renderPreviewForm();
+      renderDataTable();
+      updatePreviewProgress();
+    }
+
+    function resetConfigToDefault() {
+      const ok = confirm('Varsayılan config\'e dönmek istediğine emin misin? Mevcut config kaybolur.');
+      if (!ok) return;
+      config = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+      saveConfigToStorage();
+    }
+
+    function getDataStorageKey() {
+      const sk = (config && config.storageKey) ? String(config.storageKey).trim() : 'tez_form_data_v1';
+      return sk + '_data';
+    }
+
+    function loadDataFromStorage() {
+      try {
+        const raw = localStorage.getItem(getDataStorageKey());
+        if (!raw) {
+          data = [];
+          return;
+        }
+        const parsed = JSON.parse(raw);
+        data = Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.error('Data okunamadı', e);
+        data = [];
+      }
+    }
+
+    function saveDataToStorage() {
+      try {
+        localStorage.setItem(getDataStorageKey(), JSON.stringify(data));
+      } catch (e) {
+        console.error('Data kaydedilemedi', e);
+      }
+    }
+
+    // ------- CONFIG UI RENDER --------
+
+    function getUniqueGroups() {
+      const set = new Set();
+      (config.fields || []).forEach(f => {
+        if (f.group) set.add(String(f.group));
+      });
+      return Array.from(set);
+    }
+
+    function renderConfigUI() {
+      // Proje ayarları
+      const pn = document.getElementById('cfg-projectName');
+      const sk = document.getElementById('cfg-storageKey');
+      const tc = document.getElementById('cfg-targetCount');
+
+      if (pn) pn.value = config.projectName || '';
+      if (sk) sk.value = config.storageKey || '';
+      if (tc) tc.value = config.targetCount != null ? String(config.targetCount) : '';
+
+      // Grup rozetleri
+      const groups = getUniqueGroups();
+      const groupBadges = document.getElementById('groupBadges');
+      if (groupBadges) {
+        groupBadges.innerHTML = '';
+        if (!groups.length) {
+          const span = document.createElement('span');
+          span.className = 'hint';
+          span.textContent = 'Henüz grup yok. Alan eklerken grup adını doldurursan burada listelenir.';
+          groupBadges.appendChild(span);
+        } else {
+          groups.forEach(g => {
+            const s = document.createElement('span');
+            s.className = 'group-badge';
+            s.textContent = g;
+            groupBadges.appendChild(s);
+          });
+        }
+      }
+
+      // Alan tablosu
+      const tbody = document.getElementById('fieldTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (!config.fields || !config.fields.length) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 7;
+        td.className = 'empty-state';
+        td.textContent = 'Henüz alan tanımlı değil. "Yeni Alan" ile başlayabilirsin.';
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
+
+      config.fields.forEach((f, index) => {
+        const tr = document.createElement('tr');
+
+        const tGroup = document.createElement('td');
+        tGroup.textContent = f.group || '';
+        tr.appendChild(tGroup);
+
+        const tLabel = document.createElement('td');
+        tLabel.textContent = f.label || '';
+        tr.appendChild(tLabel);
+
+        const tId = document.createElement('td');
+        tId.textContent = f.id || '';
+        tr.appendChild(tId);
+
+        const tCsv = document.createElement('td');
+        tCsv.textContent = f.csvLabel || '';
+        tr.appendChild(tCsv);
+
+        const tType = document.createElement('td');
+        tType.textContent = f.type || '';
+        tr.appendChild(tType);
+
+        const tReq = document.createElement('td');
+        tReq.textContent = f.required ? 'Evet' : 'Hayır';
+        tr.appendChild(tReq);
+
+        const tAct = document.createElement('td');
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.className = 'secondary small-btn';
+        editBtn.textContent = 'Düzenle';
+        editBtn.onclick = () => openFieldEditor(index);
+
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'danger small-btn';
+        delBtn.textContent = 'Sil';
+        delBtn.style.marginLeft = '4px';
+        delBtn.onclick = () => deleteField(index);
+
+        tAct.appendChild(editBtn);
+        tAct.appendChild(delBtn);
+        tr.appendChild(tAct);
+
+        tbody.appendChild(tr);
+      });
+
+      // Preview başlık
+      const pName = document.getElementById('previewProjectName');
+      if (pName) {
+        const nameStr = config.projectName || 'İsimsiz Proje';
+        pName.textContent = nameStr;
+      }
+    }
+
+    // ------- FIELD EDITOR --------
+
+    function openFieldEditor(index) {
+      editingFieldIndex = index;
+      const editor = document.getElementById('fieldEditor');
+      if (!editor) return;
+      editor.style.display = 'block';
+
+      const f = (index == null) ? null : config.fields[index];
+
+      const groupEl = document.getElementById('fe-group');
+      const idEl = document.getElementById('fe-id');
+      const csvEl = document.getElementById('fe-csvLabel');
+      const labelEl = document.getElementById('fe-label');
+      const typeEl = document.getElementById('fe-type');
+      const reqEl = document.getElementById('fe-required');
+      const optEl = document.getElementById('fe-options');
+      const hintEl = document.getElementById('fe-hint');
+
+      if (!f) {
+        if (groupEl) groupEl.value = '';
+        if (idEl) idEl.value = '';
+        if (csvEl) csvEl.value = '';
+        if (labelEl) labelEl.value = '';
+        if (typeEl) typeEl.value = 'number';
+        if (reqEl) reqEl.value = 'false';
+        if (optEl) optEl.value = '';
+        if (hintEl) hintEl.value = '';
+      } else {
+        if (groupEl) groupEl.value = f.group || '';
+        if (idEl) idEl.value = f.id || '';
+        if (csvEl) csvEl.value = f.csvLabel || '';
+        if (labelEl) labelEl.value = f.label || '';
+        if (typeEl) typeEl.value = f.type || 'number';
+        if (reqEl) reqEl.value = f.required ? 'true' : 'false';
+        if (optEl) {
+          if (f.type === 'select' && Array.isArray(f.options)) {
+            optEl.value = f.options.map(o => String(o.value) + '|' + String(o.label)).join('\n');
+          } else {
+            optEl.value = '';
+          }
+        }
+        if (hintEl) hintEl.value = f.hint || '';
+      }
+    }
+
+    function cancelFieldEditor() {
+      editingFieldIndex = null;
+      const editor = document.getElementById('fieldEditor');
+      if (editor) editor.style.display = 'none';
+    }
+
+    function saveFieldFromEditor() {
+      const groupEl = document.getElementById('fe-group');
+      const idEl = document.getElementById('fe-id');
+      const csvEl = document.getElementById('fe-csvLabel');
+      const labelEl = document.getElementById('fe-label');
+      const typeEl = document.getElementById('fe-type');
+      const reqEl = document.getElementById('fe-required');
+      const optEl = document.getElementById('fe-options');
+      const hintEl = document.getElementById('fe-hint');
+
+      const group = groupEl ? groupEl.value.trim() : '';
+      const id = idEl ? idEl.value.trim() : '';
+      const csvLabel = csvEl ? csvEl.value.trim() : '';
+      const label = labelEl ? labelEl.value.trim() : '';
+      const type = typeEl ? typeEl.value : 'number';
+      const required = reqEl ? (reqEl.value === 'true') : false;
+      const hint = hintEl ? hintEl.value.trim() : '';
+
+      if (!id) {
+        alert('Alan ID boş olamaz.');
+        return;
+      }
+      if (!label) {
+        alert('Label (görünen ad) boş olamaz.');
+        return;
+      }
+      if (!csvLabel) {
+        alert('CSV Label boş olamaz.');
+        return;
+      }
+
+      // ID çakışma kontrolü
+      const existingIndex = config.fields.findIndex((f, idx) => f.id === id && idx !== editingFieldIndex);
+      if (existingIndex !== -1) {
+        alert('Bu ID zaten başka bir alan için kullanılıyor.');
+        return;
+      }
+
+      const field = {
+        id,
+        label,
+        csvLabel,
+        type,
+        group,
+        required,
+        hint
+      };
+
+      if (type === 'select' && optEl) {
+        const raw = optEl.value;
+        const lines = raw.split('\n').map(l => l.trim()).filter(l => l !== '');
+        const options = [];
+        lines.forEach(line => {
+          const parts = line.split('|');
+          if (parts.length >= 2) {
+            options.push({
+              value: parts[0].trim(),
+              label: parts.slice(1).join('|').trim()
+            });
+          }
+        });
+        field.options = options;
+      }
+
+      if (editingFieldIndex == null) {
+        config.fields.push(field);
+      } else {
+        config.fields[editingFieldIndex] = field;
+      }
+
+      editingFieldIndex = null;
+      const editor = document.getElementById('fieldEditor');
+      if (editor) editor.style.display = 'none';
+
+      // Config değişti → UI ve preview güncelle
+      renderConfigUI();
+      renderPreviewForm();
+    }
+
+    function deleteField(index) {
+      const f = config.fields[index];
+      const label = f && f.label ? f.label : f.id;
+      const ok = confirm('Bu alanı silmek istediğine emin misin? (' + label + ')');
+      if (!ok) return;
+      config.fields.splice(index, 1);
+      renderConfigUI();
+      renderPreviewForm();
+    }
+
+    // ------- CONFIG JSON IMPORT/EXPORT --------
+
+    function exportConfigJSON() {
+      const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'tez_form_config.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function triggerConfigImport() {
+      const input = document.getElementById('configFileInput');
+      if (!input) return;
+      input.value = '';
+      input.click();
+    }
+
+    function handleConfigFileChange(event) {
+      const file = event && event.target && event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const text = String(e.target && e.target.result ? e.target.result : '');
+          const parsed = JSON.parse(text);
+          if (!parsed || typeof parsed !== 'object') {
+            alert('Geçersiz JSON config.');
+            return;
+          }
+          config = parsed;
+          saveConfigToStorage();
+        } catch (err) {
+          console.error(err);
+          alert('JSON parse edilemedi.');
+        } finally {
+          event.target.value = '';
+        }
+      };
+      reader.onerror = function () {
+        alert('JSON okunamadı.');
+      };
+      reader.readAsText(file, 'utf-8');
+    }
+
+    // ------- PREVIEW FORM RENDER & DATA --------
+
+    function getColumnsFromConfig() {
+      // İlk kolon hasta ID
+      const cols = [{ id: '_id', label: 'HastaID' }];
+      (config.fields || []).forEach(f => {
+        cols.push({
+          id: f.id,
+          label: f.csvLabel || f.id
+        });
+      });
+      return cols;
+    }
+
+    function renderPreviewForm() {
+      const container = document.getElementById('previewFormFields');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (!config.fields || !config.fields.length) {
+        const p = document.createElement('p');
+        p.className = 'empty-state';
+        p.textContent = 'Henüz alan tanımı yok. Soldan alan ekledikten sonra burada form önizlemesi oluşur.';
+        container.appendChild(p);
+        return;
+      }
+
+      // Gruplara göre alanları topla
+      const byGroup = {};
+      config.fields.forEach(f => {
+        const g = f.group || 'Genel';
+        if (!byGroup[g]) byGroup[g] = [];
+        byGroup[g].push(f);
+      });
+
+      Object.keys(byGroup).forEach(groupName => {
+        const groupFields = byGroup[groupName];
+
+        const groupHeader = document.createElement('div');
+        groupHeader.style.display = 'flex';
+        groupHeader.style.justifyContent = 'space-between';
+        groupHeader.style.alignItems = 'center';
+        groupHeader.style.marginTop = '6px';
+        const label = document.createElement('div');
+        label.className = 'section-label';
+        label.textContent = groupName;
+        groupHeader.appendChild(label);
+
+        const pill = document.createElement('span');
+        pill.className = 'pill-small';
+        pill.textContent = groupFields.length + ' alan';
+        groupHeader.appendChild(pill);
+
+        container.appendChild(groupHeader);
+
+        const grid = document.createElement('div');
+        grid.className = 'preview-form-grid';
+
+        groupFields.forEach(f => {
+          const wrap = document.createElement('div');
+          wrap.className = 'preview-field';
+
+          const lbl = document.createElement('label');
+          const span = document.createElement('span');
+          span.textContent = f.label || f.id;
+          lbl.appendChild(span);
+
+          let inputEl;
+          if (f.type === 'select') {
+            inputEl = document.createElement('select');
+            inputEl.id = 'pf-' + f.id;
+            const optEmpty = document.createElement('option');
+            optEmpty.value = '';
+            optEmpty.textContent = 'Seçiniz';
+            inputEl.appendChild(optEmpty);
+            if (Array.isArray(f.options)) {
+              f.options.forEach(o => {
+                const opt = document.createElement('option');
+                opt.value = String(o.value);
+                opt.textContent = o.label;
+                inputEl.appendChild(opt);
+              });
+            }
+          } else {
+            inputEl = document.createElement('input');
+            inputEl.id = 'pf-' + f.id;
+            if (f.type === 'number') {
+              inputEl.type = 'number';
+            } else {
+              inputEl.type = 'text';
+            }
+          }
+
+          lbl.appendChild(inputEl);
+          wrap.appendChild(lbl);
+
+          if (f.hint) {
+            const hint = document.createElement('span');
+            hint.className = 'hint';
+            hint.textContent = f.hint;
+            wrap.appendChild(hint);
+          }
+
+          grid.appendChild(wrap);
+        });
+
+        container.appendChild(grid);
+      });
+
+      // Doluluk renklerine listener ekle
+      setupPreviewFieldStatusListeners();
+      refreshPreviewFieldStatuses();
+    }
+
+    function readPreviewId() {
+      const idEl = document.getElementById('pf-id');
+      const id = idEl ? idEl.value.trim() : '';
+      return id;
+    }
+
+    function readPreviewFieldValue(field) {
+      const el = document.getElementById('pf-' + field.id);
+      if (!el) return null;
+      const raw = el.value.trim();
+      if (!raw) return null;
+      if (field.type === 'number') {
+        const n = Number(raw);
+        return Number.isNaN(n) ? null : n;
+      }
+      if (field.type === 'select') {
+        return raw;
+      }
+      return raw;
+    }
+
+    function collectPreviewRecord() {
+      const id = readPreviewId();
+      if (!id) {
+        alert('Hasta / kayıt ID boş olamaz.');
+        return null;
+      }
+      const rec = { _id: id };
+      (config.fields || []).forEach(f => {
+        rec[f.id] = readPreviewFieldValue(f);
+      });
+      return rec;
+    }
+
+    function savePreviewRecord() {
+      const rec = collectPreviewRecord();
+      if (!rec) return;
+
+      const idx = data.findIndex(r => r._id === rec._id);
+      if (idx === -1) {
+        data.push(rec);
+      } else {
+        data[idx] = Object.assign({}, data[idx], rec);
+      }
+
+      saveDataToStorage();
+      renderDataTable();
+      updatePreviewProgress();
+      refreshPreviewFieldStatuses();
+      alert('Kayıt kaydedildi / güncellendi.');
+    }
+
+    function clearPreviewForm() {
+      const form = document.getElementById('previewForm');
+      if (!form) return;
+      const id = readPreviewId();
+      form.reset();
+      const idEl = document.getElementById('pf-id');
+      if (idEl) idEl.value = id; // ID kalsın istersen
+      refreshPreviewFieldStatuses();
+    }
+
+    function copyPreviewId() {
+      const id = readPreviewId();
+      if (!id) {
+        alert('Kopyalanacak ID yok.');
+        return;
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(id)
+          .then(() => alert('ID panoya kopyalandı.'))
+          .catch(() => alert('ID kopyalanamadı, elle kopyalayabilirsin.'));
+      } else {
+        alert('Tarayıcı clipboard API desteklemiyor, ID alanını elle kopyalayabilirsin.');
+      }
+    }
+
+    function renderDataTable() {
+      const thead = document.getElementById('dataTableHead');
+      const tbody = document.getElementById('dataTableBody');
+      if (!thead || !tbody) return;
+
+      thead.innerHTML = '';
+      tbody.innerHTML = '';
+
+      const cols = getColumnsFromConfig();
+
+      const trHead = document.createElement('tr');
+      cols.forEach(c => {
+        const th = document.createElement('th');
+        th.textContent = c.label;
+        trHead.appendChild(th);
+      });
+      thead.appendChild(trHead);
+
+      if (!data.length) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = cols.length;
+        td.className = 'empty-state';
+        td.textContent = 'Henüz veri yok. Sağdaki formdan kayıt eklemeye başlayabilirsin.';
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
+
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        cols.forEach(c => {
+          const td = document.createElement('td');
+          let val = row[c.id];
+          if (val === null || val === undefined) val = '';
+          td.textContent = val;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updatePreviewProgress() {
+      const total = config.targetCount || 0;
+      const current = Array.isArray(data) ? data.length : 0;
+      const ratio = total > 0 ? Math.min(current / total, 1) : 0;
+      const percent = total > 0 ? ratio * 100 : 0;
+
+      const textEl = document.getElementById('previewProgressText');
+      const percentEl = document.getElementById('previewProgressPercent');
+      const barEl = document.getElementById('previewProgressBar');
+
+      if (textEl) {
+        if (total > 0) {
+          textEl.textContent = current + ' / ' + total + ' kayıt';
+        } else {
+          textEl.textContent = current + ' kayıt';
+        }
+      }
+      if (percentEl) {
+        const display = percent.toFixed(1);
+        percentEl.textContent = total > 0
+          ? (display.endsWith('.0') ? display.slice(0, -2) : display) + '%'
+          : '0%';
+      }
+      if (barEl) {
+        const safePercent = percent > 2 ? percent : (current > 0 ? 2 : 0);
+        barEl.style.width = safePercent + '%';
+      }
+    }
+
+    function exportDataCSV() {
+      if (!data.length) {
+        alert('Dışa aktarılacak kayıt yok.');
+        return;
+      }
+      const cols = getColumnsFromConfig();
+      const header = cols.map(c => c.label).join(',');
+      const rows = data.map(row => {
+        return cols.map(c => {
+          let val = row[c.id];
+          if (val === null || val === undefined) val = '';
+          let s = String(val);
+          s = s.replace(/"/g, '""');
+          return '"' + s + '"';
+        }).join(',');
+      });
+      const csv = [header].concat(rows).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = (config.projectName || 'tez_form') + '_dataset.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // ------- FIELD STATUS (BOŞ / DOLU RENKLERİ) --------
+
+    function updatePreviewFieldStatus(el) {
+      if (!el) return;
+      if (el.id === 'pf-id') return;
+      const val = (el.value || '').trim();
+      el.classList.remove('input-status-empty', 'input-status-filled');
+      if (!val) {
+        el.classList.add('input-status-empty');
+      } else {
+        el.classList.add('input-status-filled');
+      }
+    }
+
+    function refreshPreviewFieldStatuses() {
+      const form = document.getElementById('previewForm');
+      if (!form) return;
+      const els = form.querySelectorAll('input[type="number"], input[type="text"], select');
+      els.forEach(el => updatePreviewFieldStatus(el));
+    }
+
+    function setupPreviewFieldStatusListeners() {
+      const form = document.getElementById('previewForm');
+      if (!form) return;
+      const els = form.querySelectorAll('input[type="number"], input[type="text"], select');
+      els.forEach(el => {
+        el.addEventListener('input', () => updatePreviewFieldStatus(el));
+        el.addEventListener('change', () => updatePreviewFieldStatus(el));
+      });
+    }
+
+    // ------- INIT --------
+
+    function syncProjectSettingsFromInputs() {
+      const pn = document.getElementById('cfg-projectName');
+      const sk = document.getElementById('cfg-storageKey');
+      const tc = document.getElementById('cfg-targetCount');
+      if (pn) config.projectName = pn.value.trim() || 'İsimsiz Proje';
+      if (sk) config.storageKey = sk.value.trim() || 'tez_form_data_v1';
+      if (tc) {
+        const n = Number(tc.value);
+        config.targetCount = Number.isNaN(n) ? 0 : n;
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', function () {
+      loadConfigFromStorage();
+      syncProjectSettingsFromInputs(); // ilk seferde config'i inputlara yazdık, ama storageKey vs. için
+      renderConfigUI();
+      loadDataFromStorage();
+      renderPreviewForm();
+      renderDataTable();
+      updatePreviewProgress();
+
+      // Proje ayarları değişince config'e yansıt
+      const pn = document.getElementById('cfg-projectName');
+      const sk = document.getElementById('cfg-storageKey');
+      const tc = document.getElementById('cfg-targetCount');
+      if (pn) pn.addEventListener('change', () => { syncProjectSettingsFromInputs(); renderConfigUI(); });
+      if (sk) sk.addEventListener('change', () => { syncProjectSettingsFromInputs(); loadDataFromStorage(); renderDataTable(); updatePreviewProgress(); });
+      if (tc) tc.addEventListener('change', () => { syncProjectSettingsFromInputs(); updatePreviewProgress(); });
+    });
+
+    // Global export
+    window.openFieldEditor = openFieldEditor;
+    window.cancelFieldEditor = cancelFieldEditor;
+    window.saveFieldFromEditor = saveFieldFromEditor;
+    window.deleteField = deleteField;
+    window.saveConfigToStorage = saveConfigToStorage;
+    window.resetConfigToDefault = resetConfigToDefault;
+    window.exportConfigJSON = exportConfigJSON;
+    window.triggerConfigImport = triggerConfigImport;
+    window.handleConfigFileChange = handleConfigFileChange;
+    window.exportDataCSV = exportDataCSV;
+    window.savePreviewRecord = savePreviewRecord;
+    window.clearPreviewForm = clearPreviewForm;
+    window.copyPreviewId = copyPreviewId;
+  </script>
+</body>
+</html>
