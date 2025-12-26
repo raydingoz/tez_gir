@@ -973,24 +973,15 @@
        Firebase + Firestore (v8)
        ========================= */
     var firebaseConfig = {
-
-  apiKey: "AIzaSyAk81XcXVGHtQ9Uwwn2VJPEMsnppMiZxpc",
-
-  authDomain: "acil-x.firebaseapp.com",
-
-  databaseURL: "https://acil-x-default-rtdb.firebaseio.com",
-
-  projectId: "acil-x",
-
-  storageBucket: "acil-x.firebasestorage.app",
-
-  messagingSenderId: "491316574624",
-
-  appId: "1:491316574624:web:89f3576d1196ff63ba0cc5",
-
-  measurementId: "G-KMP05PRYJS"
-
-};
+      apiKey: "AIzaSyAk81XcXVGHtQ9Uwwn2VJPEMsnppMiZxpc",
+      authDomain: "acil-x.firebaseapp.com",
+      databaseURL: "https://acil-x-default-rtdb.firebaseio.com",
+      projectId: "acil-x",
+      storageBucket: "acil-x.firebasestorage.app",
+      messagingSenderId: "491316574624",
+      appId: "1:491316574624:web:89f3576d1196ff63ba0cc5",
+      measurementId: "G-KMP05PRYJS"
+    };
 
     var db = null;
     var FIRE_COLLECTION = "tbi_dai_records";
@@ -1629,16 +1620,83 @@
        ========================= */
     function normalizeId(id) { return (id || "").trim(); }
 
-    function handleSearch() {
+    // URL paramından (?hastano=) da kullanılacak, local + Firestore arayan arama fonksiyonu
+    async function handleSearch() {
       const input = document.getElementById("searchId");
       const id = normalizeId(input ? input.value : "");
-      if (!id) { alert("Önce hasta ID yaz."); return; }
+      if (!id) {
+        alert("Önce hasta ID yaz.");
+        return;
+      }
 
-      const idx = data.findIndex(r => r._id === id);
+      // ID alanını senkronla
       const idField = document.getElementById("field-_id");
       if (idField) idField.value = id;
 
-      fillForm(idx === -1 ? null : data[idx]);
+      // 1) Önce local data'da ara
+      let idx = data.findIndex(r => r._id === id);
+      if (idx !== -1) {
+        fillForm(data[idx]);
+        return;
+      }
+
+      // 2) Local'de yoksa Firestore'dan tek doküman çek
+      if (db) {
+        try {
+          const snap = await db
+            .collection(FIRE_COLLECTION)
+            .doc(String(id))
+            .get();
+
+          if (snap.exists) {
+            const rec = snap.data() || {};
+            if (!rec._id) rec._id = id;
+
+            const existingIndex = data.findIndex(r => r._id === rec._id);
+            if (existingIndex === -1) {
+              data.push(rec);
+            } else {
+              data[existingIndex] = Object.assign({}, data[existingIndex], rec);
+            }
+
+            saveDataToStorage();
+            renderDataTable();
+            updateProgressUI();
+            updateAnalysis();
+            fillForm(rec);
+            return;
+          }
+        } catch (err) {
+          console.error("Firestore'dan ID ile okuma hatası:", err);
+          // read izni yoksa burada hata göreceksin, ama yeni kayıt moduna geçmeye devam ediyoruz
+        }
+      }
+
+      // 3) Firestore'da da yoksa: aynı ID ile boş form (yeni kayıt modu)
+      fillForm(null);
+    }
+
+    // Sayfa ilk açıldığında ?hastano= parametresi varsa otomatik arama
+    function handleHastanoParamOnLoad() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const raw = params.get("hastano");
+        if (!raw) return;
+
+        const id = normalizeId(raw);
+        if (!id) return;
+
+        const searchInput = document.getElementById("searchId");
+        if (searchInput) searchInput.value = id;
+
+        const idField = document.getElementById("field-_id");
+        if (idField) idField.value = id;
+
+        // Local + Firestore sorgusunu yapan fonksiyon
+        handleSearch();
+      } catch (err) {
+        console.error("hastano param parse hatası:", err);
+      }
     }
 
     function startNew() {
@@ -2203,6 +2261,10 @@
       updateAnalysis();
       refreshAllFieldStatuses();
 
+      // URL'den ?hastano= parametresini okuyup otomatik arama yap
+      handleHastanoParamOnLoad();
+
+      // Bind global functions
       window.handleSearch = handleSearch;
       window.startNew = startNew;
       window.saveRecord = saveRecord;
