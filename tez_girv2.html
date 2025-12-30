@@ -1353,85 +1353,567 @@
     const CONFIG_STORAGE_KEY = "tez_active_form_config_v2";
 
     const DEFAULT_CONFIG = {
-      "projectName": "TBI / DAI Tez Veri Toplama",
-      "storageKey": "tbi_dai_data_v1",
-      "targetCount": 800,
-      "fields": [
-        { "id": "hasta_id", "label": "Hasta ID (anonim)", "csvLabel": "HastaID", "type": "text", "group": "Kimlik", "required": true, "hint": "Anonim/çalışma içi ID. Aynı hasta için tekil olmalı (örn. H000123)." },
-        { "id": "basvuru_dt", "label": "Başvuru Tarih-Saat", "csvLabel": "BasvuruTarihSaat", "type": "datetime", "group": "Kimlik", "required": true, "hint": "ISO önerilir: YYYY-MM-DD HH:MM (örn. 2024-05-12 18:42)." },
-        { "id": "yas", "label": "Yaş (yıl)", "csvLabel": "Yas", "type": "number", "group": "Demografi", "required": false, "hint": "Tam yıl cinsinden (örn. 42)." },
-        { "id": "cinsiyet", "label": "Cinsiyet (kodlu)", "csvLabel": "CinsiyetKod", "type": "select", "group": "Demografi", "required": false, "hint": "1: Erkek, 2: Kadın, 0: Bilinmiyor/Diğer.",
-          "options": [{ "value": "1", "label": "1 - Erkek" }, { "value": "2", "label": "2 - Kadın" }, { "value": "0", "label": "0 - Bilinmiyor / Diğer" }]
-        },
-        { "id": "travma_mekanizma", "label": "Travma Mekanizması (kodlu)", "csvLabel": "TravmaMekanizmaKod", "type": "select", "group": "Klinik", "required": false, "hint": "Merkezinizin rapor/ICD mantığına göre sabit kod kullanın.",
-          "options": [{ "value": "1", "label": "1 - AİTK / araç içi" }, { "value": "2", "label": "2 - ADTK / yaya-motosiklet" }, { "value": "3", "label": "3 - Yüksekten düşme" }, { "value": "4", "label": "4 - Aynı seviye düşme / merdiven" }, { "value": "5", "label": "5 - Darp" }, { "value": "6", "label": "6 - Penetran travma" }, { "value": "9", "label": "9 - Diğer / Bilinmiyor" }]
-        },
-        { "id": "antikoagulan", "label": "Antikoagülan kullanımı", "csvLabel": "AntikoagulanKod", "type": "select", "group": "Klinik", "required": false, "hint": "Warfarin/DOAC/heparin vb. (başvuru öncesi kronik kullanım).",
-          "options": [{ "value": "0", "label": "0 - Yok" }, { "value": "1", "label": "1 - Var" }, { "value": "9", "label": "9 - Bilinmiyor" }]
-        },
-        { "id": "antiagregan", "label": "Antiagregan kullanımı", "csvLabel": "AntiagreganKod", "type": "select", "group": "Klinik", "required": false, "hint": "ASA/klopidogrel vb. (başvuru öncesi kronik kullanım).",
-          "options": [{ "value": "0", "label": "0 - Yok" }, { "value": "1", "label": "1 - Var" }, { "value": "9", "label": "9 - Bilinmiyor" }]
-        },
-        { "id": "mr_basvurudan_gun", "label": "MR (başvurudan sonra gün)", "csvLabel": "MR_Basvurudan_Gun", "type": "number", "group": "Görüntüleme", "required": false, "hint": "MR çekim günü: başvuru=0. (örn. 2 = 48 saat içinde değil, 2. gün)." },
-        { "id": "gks", "label": "GKS (ilk / en kötü)", "csvLabel": "GKS", "type": "number", "group": "Klinik", "required": false, "hint": "3–15 arası toplam skor." },
-        { "id": "pupil", "label": "Pupilla reaktivitesi", "csvLabel": "PupilKod", "type": "select", "group": "Klinik", "required": false, "hint": "IMPACT benzeri kodlama.",
-          "options": [{ "value": "0", "label": "0 - Her iki pupil reaktif" }, { "value": "1", "label": "1 - Tek pupil fiks/dilat" }, { "value": "2", "label": "2 - Her iki pupil fiks/dilat" }, { "value": "9", "label": "9 - Bilinmiyor" }]
-        },
-        { "id": "entube", "label": "Entübe (prehospital/ED)", "csvLabel": "EntubeKod", "type": "select", "group": "Klinik", "required": false,
-          "options": [{ "value": "0", "label": "0 - Entübe değil" }, { "value": "1", "label": "1 - Entübe" }, { "value": "9", "label": "9 - Bilinmiyor" }]
-        },
-        { "id": "ed_hipotansiyon", "label": "ED Hipotansiyon", "csvLabel": "ED_HipotansiyonKod", "type": "select", "group": "Klinik", "required": false, "hint": "Prehospital/ED SBP < 90 mmHg epizodu.",
-          "options": [{ "value": "0", "label": "0 - Epizod yok" }, { "value": "1", "label": "1 - En az bir epizod" }, { "value": "9", "label": "9 - Bilinmiyor" }]
-        },
-        { "id": "ed_hipoksi", "label": "ED Hipoksi", "csvLabel": "ED_HipoksiKod", "type": "select", "group": "Klinik", "required": false, "hint": "Prehospital/ED SpO₂ < 90 epizodu.",
-          "options": [{ "value": "0", "label": "0 - Epizod yok" }, { "value": "1", "label": "1 - En az bir epizod" }, { "value": "9", "label": "9 - Bilinmiyor" }]
-        },
-        { "id": "mls", "label": "Midline Shift (mm)", "csvLabel": "MidlineShift_mm", "type": "number", "group": "Görüntüleme", "required": false, "hint": "Başvuru BT’de maksimum orta hat kayması." },
-        { "id": "basal_cistern", "label": "Basal sistern durumu", "csvLabel": "BasalCisternKod", "type": "select", "group": "Görüntüleme", "required": false,
-          "options": [{ "value": "0", "label": "0 - Açık" }, { "value": "1", "label": "1 - Komprese" }, { "value": "2", "label": "2 - Obliter" }, { "value": "9", "label": "9 - Değerlendirilemedi" }]
-        },
-        { "id": "edh", "label": "EDH", "csvLabel": "EDH_Kod", "type": "select", "group": "Görüntüleme", "required": false,
-          "options": [{ "value": "0", "label": "0 - Yok" }, { "value": "1", "label": "1 - Var" }, { "value": "9", "label": "9 - Bilinmiyor" }]
-        },
-        { "id": "sdh", "label": "SDH", "csvLabel": "SDH_Kod", "type": "select", "group": "Görüntüleme", "required": false,
-          "options": [{ "value": "0", "label": "0 - Yok" }, { "value": "1", "label": "1 - Var" }, { "value": "9", "label": "9 - Bilinmiyor" }]
-        },
-        { "id": "sah", "label": "Travmatik SAH", "csvLabel": "SAH_Kod", "type": "select", "group": "Görüntüleme", "required": false,
-          "options": [{ "value": "0", "label": "0 - Yok" }, { "value": "1", "label": "1 - Var" }, { "value": "9", "label": "9 - Bilinmiyor" }]
-        },
-        { "id": "kontuzyon", "label": "Kontüzyon / İKH", "csvLabel": "KontuzyonKod", "type": "select", "group": "Görüntüleme", "required": false,
-          "options": [{ "value": "0", "label": "0 - Yok" }, { "value": "1", "label": "1 - Var" }, { "value": "9", "label": "9 - Bilinmiyor" }]
-        },
-        { "id": "dai_swi_skor", "label": "SWI DAI Skoru", "csvLabel": "DAI_SWI_Skor", "type": "select", "group": "Görüntüleme", "required": false, "hint": "Rapor/manuel skor; görüntü işleme ile kıyaslanabilir.",
-          "options": [{ "value": "0", "label": "0 - Lezyon yok" }, { "value": "1", "label": "1 - Hafif" }, { "value": "2", "label": "2 - Orta" }, { "value": "3", "label": "3 - Ağır" }, { "value": "9", "label": "9 - Bilinmiyor / Değerlendirilemedi" }]
-        },
-        { "id": "na", "label": "Sodyum (mmol/L)", "csvLabel": "Na_mmolL", "type": "number", "group": "Lab", "required": false, "hint": "Başvuruya en yakın Na." },
-        { "id": "glu", "label": "Glukoz (mg/dL)", "csvLabel": "Glu_mgdl", "type": "number", "group": "Lab", "required": false, "hint": "Başvuruya en yakın glukoz." },
-        { "id": "laktat", "label": "Laktat (mmol/L)", "csvLabel": "Laktat_mmolL", "type": "number", "group": "Lab", "required": false, "hint": "Başvuruya en yakın laktat." },
-        { "id": "hb", "label": "Hemoglobin (g/dL)", "csvLabel": "Hb_gdl", "type": "number", "group": "Lab", "required": false },
-        { "id": "plt", "label": "Trombosit (x10³/µL)", "csvLabel": "Trombosit_x10e3", "type": "number", "group": "Lab", "required": false, "hint": "210 → 210 (x10³/µL)." },
-        { "id": "inr", "label": "INR", "csvLabel": "INR", "type": "number", "group": "Lab", "required": false },
-        { "id": "kreatinin", "label": "Kreatinin (mg/dL)", "csvLabel": "Kreatinin_mgdl", "type": "number", "group": "Lab", "required": false },
-        { "id": "gose_6ay", "label": "GOSE 6. Ay", "csvLabel": "GOSE_6Ay", "type": "select", "group": "Outcome", "required": false, "hint": "1–8; analizde ikili/çoklu kategorilere ayrılabilir.",
-          "options": [{ "value": "1", "label": "1 - Ölüm" }, { "value": "2", "label": "2 - Vejetatif durum" }, { "value": "3", "label": "3 - Ağır disabilite (ev dışı bağımlı)" }, { "value": "4", "label": "4 - Ağır disabilite (ev içi bağımlı)" }, { "value": "5", "label": "5 - Orta disabilite (ev dışı bağımlı)" }, { "value": "6", "label": "6 - Orta disabilite (ev dışı bağımsız)" }, { "value": "7", "label": "7 - Hafif disabilite" }, { "value": "8", "label": "8 - İyi iyileşme" }, { "value": "9", "label": "9 - Bilinmiyor" }]
-        },
-        { "id": "kotu_gose_esik", "label": "Kötü GOSE eşiği", "csvLabel": "KotuGOSE_Esik", "type": "number", "group": "Outcome", "required": false, "hint": "İkili sonlanım için eşik (sık kullanım: GOSE ≤ 4 kötü). Örn: 4." },
-        { "id": "kotu_gose_6ay", "label": "Kötü GOSE (6. ay) (ikili)", "csvLabel": "KotuGOSE_6Ay", "type": "select", "group": "Outcome", "required": false, "hint": "Genelde: 1 = kötü (GOSE ≤ eşik), 0 = iyi.",
-          "options": [{ "value": "0", "label": "0 - İyi" }, { "value": "1", "label": "1 - Kötü" }, { "value": "9", "label": "9 - Bilinmiyor" }]
-        },
-        { "id": "bt_accession", "label": "BT Accession No", "csvLabel": "BT_ACCESSION_NO", "type": "text", "group": "Görüntüleme", "required": false, "hint": "PACS/HL7 accession numarası (metin olarak)." },
-        { "id": "mr_accession", "label": "MR Accession No", "csvLabel": "MR_ACCESSION_NO", "type": "text", "group": "Görüntüleme", "required": false, "hint": "PACS/HL7 accession numarası (metin olarak)." },
-        { "id": "mr_sekanslar", "label": "MR Sekanslar", "csvLabel": "MR_SEKANSLAR", "type": "text", "group": "Görüntüleme", "required": false, "hint": "Virgülle yazın: T1,T2,FLAIR,DWI,ADC,SWI,DTI vb." },
-        { "id": "dicom_anonim", "label": "DICOM anonim hazır mı?", "csvLabel": "DICOM_ANONIM_HAZIR_VAR", "type": "select", "group": "Görüntüleme", "required": false,
-          "options": [{ "value": "0", "label": "0 - Hayır" }, { "value": "1", "label": "1 - Evet" }, { "value": "9", "label": "9 - Bilinmiyor" }]
-        },
-        { "id": "takip_kaynagi", "label": "Takip kaynağı", "csvLabel": "TakipKaynagi", "type": "select", "group": "Metaveri", "required": false,
-          "options": [{ "value": "1", "label": "1 - Hastane bilgi sistemi / epikriz" }, { "value": "2", "label": "2 - Poliklinik kontrol kaydı" }, { "value": "3", "label": "3 - Telefon görüşmesi" }, { "value": "4", "label": "4 - Ulusal ölüm bildirimi / MERNİS benzeri" }, { "value": "9", "label": "9 - Bilinmiyor" }]
-        },
-        { "id": "veri_toplayan", "label": "Veri toplayan", "csvLabel": "VeriToplayan", "type": "text", "group": "Metaveri", "required": false, "hint": "İsim yerine kısaltma/ID önerilir (örn. ATU1)." },
-        { "id": "veri_toplama_tarih", "label": "Veri toplama tarihi", "csvLabel": "VeriToplamaTarih", "type": "date", "group": "Metaveri", "required": false, "hint": "YYYY-MM-DD (örn. 2025-12-30)." }
+  "projectName": "TBI Tez Veri Toplama",
+  "storageKey": "tbi_dai_dataset_v2",
+  "targetCount": 800,
+  "fields": [
+    {
+      "id": "BasvuruTarihSaat",
+      "label": "Başvuru Tarih",
+      "csvLabel": "BasvuruTarih",
+      "type": "text",
+      "group": "Kimlik & Zaman",
+      "required": true,
+      "hint": "Önerilen format: YYYY-MM-DD (örn. 2024-05-12)"
+    },
+    {
+      "id": "MR_Basvurudan_Gun",
+      "label": "MR (başvurudan sonra gün)",
+      "csvLabel": "MR_Basvurudan_Gun",
+      "type": "number",
+      "group": "Kimlik & Zaman",
+      "required": false,
+      "hint": "Başvuru=0. Örn: 2 = 2. gün"
+    },
+
+    {
+      "id": "Yas",
+      "label": "Yaş (yıl)",
+      "csvLabel": "Yas",
+      "type": "number",
+      "group": "Demografi & Bağlam",
+      "required": false
+    },
+    {
+      "id": "CinsiyetKod",
+      "label": "Cinsiyet (kod)",
+      "csvLabel": "CinsiyetKod",
+      "type": "select",
+      "group": "Demografi & Bağlam",
+      "required": false,
+      "hint": "0=Kadın, 1=Erkek",
+      "options": [
+        { "value": "0", "label": "0 - Kadın" },
+        { "value": "1", "label": "1 - Erkek" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
       ]
-    };
+    },
+    {
+      "id": "TravmaMekanizmaKod",
+      "label": "Travma Mekanizması (kurum kodu)",
+      "csvLabel": "TravmaMekanizmaKod",
+      "type": "text",
+      "group": "Demografi & Bağlam",
+      "required": false,
+      "hint": "Kurumunuzun sabit kodu (metin/numerik olabilir)"
+    },
+    {
+      "id": "EkstrakraniyalTravmaVar",
+      "label": "Ekstrakraniyal travma var",
+      "csvLabel": "EkstrakraniyalTravmaVar",
+      "type": "select",
+      "group": "Demografi & Bağlam",
+      "required": false,
+      "hint": "Kafa dışı anlamlı yaralanma",
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "AntikoagulanKod",
+      "label": "Antikoagülan kullanımı",
+      "csvLabel": "AntikoagulanKod",
+      "type": "select",
+      "group": "Demografi & Bağlam",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "AntiagreganKod",
+      "label": "Antiagregan kullanımı",
+      "csvLabel": "AntiagreganKod",
+      "type": "select",
+      "group": "Demografi & Bağlam",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+
+    {
+      "id": "GKS",
+      "label": "GKS (toplam)",
+      "csvLabel": "GKS",
+      "type": "number",
+      "group": "Acil Şiddet",
+      "required": false,
+      "hint": "3–15"
+    },
+    {
+      "id": "GKS_Motor",
+      "label": "GKS Motor",
+      "csvLabel": "GKS_Motor",
+      "type": "number",
+      "group": "Acil Şiddet",
+      "required": false,
+      "hint": "1–6"
+    },
+    {
+      "id": "PupilKod",
+      "label": "Pupil (kod)",
+      "csvLabel": "PupilKod",
+      "type": "select",
+      "group": "Acil Şiddet",
+      "required": false,
+      "hint": "0=ikisi normal, 1=tek anormal, 2=iki anormal",
+      "options": [
+        { "value": "0", "label": "0 - İki pupil normal" },
+        { "value": "1", "label": "1 - Tek pupil anormal" },
+        { "value": "2", "label": "2 - İki pupil anormal" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "EntubeKod",
+      "label": "Entübe",
+      "csvLabel": "EntubeKod",
+      "type": "select",
+      "group": "Acil Şiddet",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Hayır" },
+        { "value": "1", "label": "1 - Evet" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "ED_HipotansiyonKod",
+      "label": "ED Hipotansiyon",
+      "csvLabel": "ED_HipotansiyonKod",
+      "type": "select",
+      "group": "Acil Şiddet",
+      "required": false,
+      "hint": "SBP < 90 epizodu",
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "ED_HipoksiKod",
+      "label": "ED Hipoksi",
+      "csvLabel": "ED_HipoksiKod",
+      "type": "select",
+      "group": "Acil Şiddet",
+      "required": false,
+      "hint": "SpO₂ < 90 epizodu",
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+
+    {
+      "id": "Hb_gdl",
+      "label": "Hemoglobin (g/dL)",
+      "csvLabel": "Hb_gdl",
+      "type": "number",
+      "group": "Laboratuvar",
+      "required": false
+    },
+    {
+      "id": "Trombosit_x10e3",
+      "label": "Trombosit (x10³/µL)",
+      "csvLabel": "Trombosit_x10e3",
+      "type": "number",
+      "group": "Laboratuvar",
+      "required": false
+    },
+    {
+      "id": "INR",
+      "label": "INR",
+      "csvLabel": "INR",
+      "type": "number",
+      "group": "Laboratuvar",
+      "required": false
+    },
+    {
+      "id": "Kreatinin_mgdl",
+      "label": "Kreatinin (mg/dL)",
+      "csvLabel": "Kreatinin_mgdl",
+      "type": "number",
+      "group": "Laboratuvar",
+      "required": false
+    },
+    {
+      "id": "Glu_mgdl",
+      "label": "Glukoz (mg/dL)",
+      "csvLabel": "Glu_mgdl",
+      "type": "number",
+      "group": "Laboratuvar",
+      "required": false
+    },
+    {
+      "id": "Laktat_mmolL",
+      "label": "Laktat (mmol/L)",
+      "csvLabel": "Laktat_mmolL",
+      "type": "number",
+      "group": "Laboratuvar",
+      "required": false
+    },
+    {
+      "id": "Na_mmolL",
+      "label": "Sodyum (mmol/L)",
+      "csvLabel": "Na_mmolL",
+      "type": "number",
+      "group": "Laboratuvar",
+      "required": false
+    },
+
+    {
+      "id": "MidlineShift_mm",
+      "label": "Midline shift (mm)",
+      "csvLabel": "MidlineShift_mm",
+      "type": "number",
+      "group": "BT (CT) Bulguları",
+      "required": false
+    },
+    {
+      "id": "BasalCisternKod",
+      "label": "Basal sistern (kod)",
+      "csvLabel": "BasalCisternKod",
+      "type": "select",
+      "group": "BT (CT) Bulguları",
+      "required": false,
+      "hint": "0=normal, 1=parsiyel, 2=obliterasyon",
+      "options": [
+        { "value": "0", "label": "0 - Normal" },
+        { "value": "1", "label": "1 - Parsiyel/komprese" },
+        { "value": "2", "label": "2 - Obliter" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "EDH_Kod",
+      "label": "EDH",
+      "csvLabel": "EDH_Kod",
+      "type": "select",
+      "group": "BT (CT) Bulguları",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "SDH_Kod",
+      "label": "SDH",
+      "csvLabel": "SDH_Kod",
+      "type": "select",
+      "group": "BT (CT) Bulguları",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "SAH_Kod",
+      "label": "tSAH",
+      "csvLabel": "SAH_Kod",
+      "type": "select",
+      "group": "BT (CT) Bulguları",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "ICH_Kod",
+      "label": "ICH (intraparenkimal hematom)",
+      "csvLabel": "ICH_Kod",
+      "type": "select",
+      "group": "BT (CT) Bulguları",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "KontuzyonKod",
+      "label": "Kontüzyon",
+      "csvLabel": "KontuzyonKod",
+      "type": "select",
+      "group": "BT (CT) Bulguları",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "IVH_Kod",
+      "label": "IVH",
+      "csvLabel": "IVH_Kod",
+      "type": "select",
+      "group": "BT (CT) Bulguları",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "SkullFrakturKod",
+      "label": "Skull fraktür",
+      "csvLabel": "SkullFrakturKod",
+      "type": "select",
+      "group": "BT (CT) Bulguları",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+
+    {
+      "id": "MR_DAI_Var",
+      "label": "MR: DAI var",
+      "csvLabel": "MR_DAI_Var",
+      "type": "select",
+      "group": "MR (DAI)",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "DAI_LobarWM_Var",
+      "label": "DAI: Lobar beyaz cevher",
+      "csvLabel": "DAI_LobarWM_Var",
+      "type": "select",
+      "group": "MR (DAI)",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "DAI_CorpusCallosum_Var",
+      "label": "DAI: Corpus callosum",
+      "csvLabel": "DAI_CorpusCallosum_Var",
+      "type": "select",
+      "group": "MR (DAI)",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "DAI_Brainstem_Var",
+      "label": "DAI: Brainstem",
+      "csvLabel": "DAI_Brainstem_Var",
+      "type": "select",
+      "group": "MR (DAI)",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "MR_Mikrokanama_SWI_Var",
+      "label": "MR: SWI mikrokanama var",
+      "csvLabel": "MR_Mikrokanama_SWI_Var",
+      "type": "select",
+      "group": "MR (DAI)",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "MR_Dif_Kisit_Var",
+      "label": "MR: Difüzyon kısıtlılığı var",
+      "csvLabel": "MR_Dif_Kisit_Var",
+      "type": "select",
+      "group": "MR (DAI)",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "MR_Bulgu_Normal",
+      "label": "MR: Bulgular normal",
+      "csvLabel": "MR_Bulgu_Normal",
+      "type": "select",
+      "group": "MR (DAI)",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Hayır" },
+        { "value": "1", "label": "1 - Evet" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+
+    {
+      "id": "CerrahiGereksinimiVar",
+      "label": "Cerrahi gereksinimi var",
+      "csvLabel": "CerrahiGereksinimiVar",
+      "type": "select",
+      "group": "Seyir & Yönetim",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "ICU_Yatis_Var",
+      "label": "ICU yatış var",
+      "csvLabel": "ICU_Yatis_Var",
+      "type": "select",
+      "group": "Seyir & Yönetim",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Yok" },
+        { "value": "1", "label": "1 - Var" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+
+    {
+      "id": "GOSE_ZamanNoktasi",
+      "label": "GOSE zaman noktası",
+      "csvLabel": "GOSE_ZamanNoktasi",
+      "type": "select",
+      "group": "Outcome",
+      "required": false,
+      "hint": "Primer zaman noktasını tek seçin (öneri: 6AY)",
+      "options": [
+        { "value": "1AY", "label": "1AY" },
+        { "value": "3AY", "label": "3AY" },
+        { "value": "6AY", "label": "6AY" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "GOSE_Skor",
+      "label": "GOSE skor",
+      "csvLabel": "GOSE_Skor",
+      "type": "number",
+      "group": "Outcome",
+      "required": false,
+      "hint": "1–8"
+    },
+
+    {
+      "id": "BT_ACCESSION_NO",
+      "label": "BT Accession No",
+      "csvLabel": "BT_ACCESSION_NO",
+      "type": "text",
+      "group": "Görüntü İzleme",
+      "required": false
+    },
+    {
+      "id": "MR_ACCESSION_NO",
+      "label": "MR Accession No",
+      "csvLabel": "MR_ACCESSION_NO",
+      "type": "text",
+      "group": "Görüntü İzleme",
+      "required": false
+    },
+    {
+      "id": "MR_SEKANSLAR",
+      "label": "MR sekanslar",
+      "csvLabel": "MR_SEKANSLAR",
+      "type": "text",
+      "group": "Görüntü İzleme",
+      "required": false,
+      "hint": "Örn: DWI,SWI,FLAIR,T1,T2"
+    },
+    {
+      "id": "DICOM_ANONIM_HAZIR_VAR",
+      "label": "DICOM anonim hazır",
+      "csvLabel": "DICOM_ANONIM_HAZIR_VAR",
+      "type": "select",
+      "group": "Görüntü İzleme",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "0 - Hayır" },
+        { "value": "1", "label": "1 - Evet" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+
+    {
+      "id": "TakipKaynagi",
+      "label": "Takip kaynağı",
+      "csvLabel": "TakipKaynagi",
+      "type": "select",
+      "group": "Admin",
+      "required": false,
+      "options": [
+        { "value": "1", "label": "1 - HBYS / epikriz" },
+        { "value": "2", "label": "2 - Poliklinik kayıtları" },
+        { "value": "3", "label": "3 - Telefon görüşmesi" },
+        { "value": "4", "label": "4 - Ulusal ölüm bildirimi" },
+        { "value": "9", "label": "9 - Bilinmiyor" }
+      ]
+    },
+    {
+      "id": "VeriToplayan",
+      "label": "Veri toplayan",
+      "csvLabel": "VeriToplayan",
+      "type": "text",
+      "group": "Admin",
+      "required": false,
+      "hint": "İsim yerine kısaltma/ID (örn. ATU1)"
+    },
+    {
+      "id": "VeriToplamaTarih",
+      "label": "Veri toplama tarihi",
+      "csvLabel": "VeriToplamaTarih",
+      "type": "text",
+      "group": "Admin",
+      "required": false,
+      "hint": "YYYY-MM-DD"
+    }
+  ]
+}
+;
 
     let CONFIG = null;
     let data = [];
